@@ -1,0 +1,141 @@
+---
+title: "Zolt API Error Codes and Troubleshooting Guide"
+sidebarTitle: "Errors"
+description: "Reference every Zolt API error code, its HTTP status, what it means, and the exact steps you should take to diagnose and resolve each one."
+---
+
+When a request to the Zolt API cannot be completed, the API returns a standard HTTP status code alongside a consistent JSON error body that gives you the information you need to diagnose and fix the problem. Every error response follows the same shape regardless of which endpoint produced it, making it straightforward to write centralized error-handling logic in your integration.
+
+## Error Response Format
+
+Every error response body is a JSON object containing a single top-level `error` key with three fields:
+
+```json title="Error Response Body"
+{
+  "error": {
+    "code": "not_found",
+    "message": "The requested resource was not found.",
+    "details": {}
+  }
+}
+```
+
+<ResponseField name="error.code" type="string" required>
+  A stable, machine-readable string that identifies the specific error. Use this field in your error-handling logic rather than parsing the human-readable `message`. Error codes do not change between API versions.
+</ResponseField>
+
+<ResponseField name="error.message" type="string" required>
+  A human-readable description of what went wrong. This message is intended for developers during debugging and is not guaranteed to remain stable across releases — do not rely on it programmatically.
+</ResponseField>
+
+<ResponseField name="error.details" type="object">
+  An optional object containing structured supplementary information about the error. For validation errors, this object includes a field-by-field breakdown of which inputs failed and why. For other error types, this object may be empty (`{}`).
+
+  <Expandable title="Example: validation_error details">
+    ```json title="Validation Error Details"
+    {
+      "error": {
+        "code": "validation_error",
+        "message": "One or more fields failed validation.",
+        "details": {
+          "fields": [
+            {
+              "field": "name",
+              "issue": "This field is required and cannot be blank."
+            },
+            {
+              "field": "due_date",
+              "issue": "Must be an ISO 8601 date string (e.g., 2024-06-01)."
+            }
+          ]
+        }
+      }
+    }
+    ```
+  </Expandable>
+</ResponseField>
+
+## HTTP Status Codes
+
+The Zolt API uses standard HTTP status codes. The table below covers every code you may encounter across all endpoints.
+
+| Status | Meaning |
+|--------|---------|
+| `200` | **OK** — The request succeeded and the response body contains the requested data. |
+| `201` | **Created** — A new resource was successfully created. The response body contains the full representation of the created resource. |
+| `204` | **No Content** — The request succeeded but there is no response body to return. Returned on successful DELETE operations. |
+| `400` | **Bad Request** — The request is malformed or missing required parameters. Check your request body and query string against the endpoint documentation. |
+| `401` | **Unauthorized** — The `Authorization` header is missing, the API key is invalid, or the key has been revoked. |
+| `403` | **Forbidden** — The API key is valid but does not have the scope required to perform this action. |
+| `404` | **Not Found** — The resource identified by the request URL does not exist, or it belongs to a workspace your key does not have access to. |
+| `409` | **Conflict** — The request could not be completed because it conflicts with the current state of a resource — for example, attempting to create a resource with a name that must be unique but already exists. |
+| `422` | **Unprocessable Entity** — The request was well-formed and parseable, but the data failed semantic validation rules (such as a due date that precedes a start date). |
+| `429` | **Too Many Requests** — Your workspace has exceeded its rate limit. Wait for the window to reset and retry with exponential backoff. See [Rate Limits](/developers/rate-limits) for guidance. |
+| `500` | **Internal Server Error** — An unexpected error occurred on Zolt's servers. This is not caused by your request. If the issue persists, check [status.zolt.io](https://status.zolt.io) and contact support. |
+
+## Common Error Codes
+
+Each `error.code` value below describes a specific failure condition, explains why it occurs, and tells you exactly what to do about it.
+
+<AccordionGroup>
+  <Accordion title="unauthorized">
+    **HTTP Status:** `401`
+
+    **What it means:** The request did not include a valid API key. This happens when the `Authorization` header is missing entirely, the `Bearer` prefix is absent, the key has been revoked, or the key was typed incorrectly.
+
+    **How to resolve it:**
+    - Confirm that your request includes the header `Authorization: Bearer YOUR_API_KEY`.
+    - Verify that the API key is copied correctly and has not been truncated.
+    - In Zolt, navigate to **Settings → Developer → API Keys** and confirm the key is still active and has not been revoked.
+    - If the key was lost or revoked, generate a new one and update your integration's configuration.
+  </Accordion>
+
+  <Accordion title="forbidden">
+    **HTTP Status:** `403`
+
+    **What it means:** The API key was recognized and is active, but it does not have the scope required for the action you attempted. For example, a `read`-scoped key cannot create or delete resources.
+
+    **How to resolve it:**
+    - Check the scope assigned to the API key you are using (visible in **Settings → Developer → API Keys**).
+    - If the key needs broader permissions, revoke it and generate a new key with the `write` or `admin` scope, as appropriate.
+    - Review the [Authentication](/developers/authentication#api-key-scopes) page for a full breakdown of what each scope permits.
+  </Accordion>
+
+  <Accordion title="not_found">
+    **HTTP Status:** `404`
+
+    **What it means:** The resource referenced in the request URL does not exist. This could mean the ID is wrong, the resource has been deleted, or the resource belongs to a different workspace than the one your API key is scoped to.
+
+    **How to resolve it:**
+    - Double-check that the resource ID in the URL is correct and was not corrupted in transit (e.g., truncated or URL-encoded incorrectly).
+    - Confirm the resource has not been deleted by checking the Zolt UI or using a `GET` request to list resources of that type.
+    - Ensure the API key you are using belongs to the same workspace that owns the resource.
+  </Accordion>
+
+  <Accordion title="validation_error">
+    **HTTP Status:** `400` or `422`
+
+    **What it means:** One or more fields in your request body failed validation. A `400` is returned when the request is structurally invalid (e.g., missing a required field or sending the wrong data type). A `422` is returned when the data is structurally valid but fails business logic rules (e.g., a task's due date is before its start date).
+
+    **How to resolve it:**
+    - Inspect `error.details.fields` in the response body for a field-by-field list of what failed and why.
+    - Cross-reference the failing fields against the endpoint's parameter documentation to confirm the correct types, formats, and constraints.
+    - Ensure date strings are formatted as ISO 8601 (e.g., `2024-06-01T09:00:00Z`) and enum values are from the documented allowed set.
+  </Accordion>
+
+  <Accordion title="rate_limit_exceeded">
+    **HTTP Status:** `429`
+
+    **What it means:** Your workspace has sent more requests in the current one-minute window than its plan allows. All further requests are blocked until the window resets.
+
+    **How to resolve it:**
+    - Read the `X-RateLimit-Reset` header in the `429` response to determine when the current window expires, then wait until after that Unix timestamp before retrying.
+    - Implement exponential backoff with jitter in your retry logic so your integration recovers gracefully without hammering the API. See the [Rate Limits](/developers/rate-limits#handling-429-too-many-requests) page for a ready-to-use code example.
+    - Consider caching frequently read resources and replacing polling loops with [webhook subscriptions](/developers/webhooks) to reduce your overall request volume.
+    - If your integration legitimately requires a higher sustained request volume, upgrade your workspace plan or contact [support@zolt.io](mailto:support@zolt.io) to request a custom limit.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  Always log the **full response body** — not just the HTTP status code — whenever your integration receives an error. The `error.code` and `error.details` fields contain the information you need to pinpoint the cause immediately, and they make a significant difference when you need to trace an issue in a production system.
+</Tip>

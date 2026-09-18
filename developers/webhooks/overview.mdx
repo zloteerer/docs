@@ -1,0 +1,101 @@
+---
+title: "Receive Real-Time Events with Zolt Webhooks"
+sidebarTitle: "Overview"
+description: "Use Zolt webhooks to receive instant HTTP POST notifications in your app whenever key events occur in your workspace."
+---
+
+Webhooks give your application a direct line into Zolt's activity stream. Instead of polling the API to check whether something has changed, you register an endpoint URL and Zolt pushes an HTTP POST request to it the moment a subscribed event fires — whether that's a task being created, a project being archived, or a member joining your workspace. This makes webhooks the fastest and most efficient way to keep external systems in sync with Zolt.
+
+## How Webhooks Work
+
+When an event occurs in Zolt, the platform constructs a JSON payload describing what happened and immediately delivers it to every registered endpoint that has subscribed to that event type. The request is a standard HTTP POST with a `Content-Type: application/json` header. Your server reads the payload, processes it, and responds with an HTTP `2xx` status code to acknowledge receipt. If your endpoint does not respond in time or returns a non-`2xx` status, Zolt will retry the delivery automatically (see [Retries](#retries) below).
+
+## Registering a Webhook
+
+You can register a webhook endpoint through the Zolt dashboard or directly through the API.
+
+### Using the Dashboard
+
+<Steps>
+  <Step title="Open Webhook Settings">
+    In your Zolt workspace, navigate to **Settings → Developer → Webhooks**.
+  </Step>
+  <Step title="Add a New Endpoint">
+    Click **Add Endpoint** to open the registration form.
+  </Step>
+  <Step title="Enter Your Endpoint URL">
+    Type or paste the publicly accessible HTTPS URL where Zolt should deliver events (for example, `https://yourapp.com/webhook`).
+  </Step>
+  <Step title="Select Events to Subscribe To">
+    Check each event type your integration needs to handle. You can subscribe to individual events or select **All Events** to receive everything Zolt emits.
+  </Step>
+  <Step title="Save the Endpoint">
+    Click **Save**. Zolt displays your webhook secret once — copy it and store it securely before closing the dialog. You will need it to [verify incoming payloads](/developers/webhooks/security).
+  </Step>
+</Steps>
+
+### Using the API
+
+If you prefer to register webhooks programmatically, send a `POST` request to the `/v1/webhooks` endpoint:
+
+```bash title="Register a webhook endpoint"
+curl -X POST https://api.zolt.io/v1/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://yourapp.com/webhook", "events": ["task.created", "task.updated"]}'
+```
+
+The response body includes a `secret` field containing your signing secret. This value is returned only once, so persist it immediately in a secure secrets store.
+
+## Webhook Payload Format
+
+Every webhook request Zolt sends shares the same top-level envelope structure. The `event` field identifies which event fired, and the `data` object contains the full resource snapshot at the time of the event.
+
+```json title="Example webhook payload"
+{
+  "id": "evt_01H9XYZ",
+  "event": "task.created",
+  "created_at": "2024-01-15T10:30:00Z",
+  "data": {
+    "task": {
+      "id": "task_abc123",
+      "title": "Design new landing page",
+      "project_id": "proj_xyz789",
+      "status": "todo",
+      "assignee_id": "user_def456"
+    }
+  }
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | string | Unique identifier for this event delivery. Use this to deduplicate retried events. |
+| `event` | string | The event type, in `resource.action` format. |
+| `created_at` | string (ISO 8601) | UTC timestamp of when the event was generated. |
+| `data` | object | The resource payload. The key inside `data` matches the resource type (e.g., `task`, `project`, `member`). |
+
+## Retries
+
+Zolt considers a delivery successful when your endpoint returns any HTTP `2xx` response within **10 seconds** of receiving the request. If the response times out or returns a `3xx`, `4xx`, or `5xx` status code, Zolt automatically retries the delivery using exponential backoff:
+
+| Attempt | Delay after previous attempt |
+|---|---|
+| 1st retry | 30 seconds |
+| 2nd retry | 2 minutes |
+| 3rd retry | 10 minutes |
+| 4th retry | 30 minutes |
+| 5th retry | 2 hours |
+
+After five failed retries, Zolt marks the delivery as permanently failed and stops attempting. You can inspect failed deliveries and manually replay them from **Settings → Developer → Webhooks → [your endpoint] → Delivery Log**.
+
+<Note>
+  Because retries can cause the same event to arrive more than once, design your webhook handler to be idempotent. The `id` field in the payload envelope uniquely identifies each event, so you can use it to detect and discard duplicates.
+</Note>
+
+---
+
+**Next steps:**
+
+- Browse the full list of events your webhook can subscribe to → [Webhook Events Reference](/developers/webhooks/events)
+- Learn how to verify that incoming requests genuinely come from Zolt → [Webhook Security](/developers/webhooks/security)

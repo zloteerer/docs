@@ -1,0 +1,367 @@
+---
+title: "Zolt API Resources: Projects, Tasks, Users, Teams"
+sidebarTitle: "Resources"
+description: "Complete reference for the core Zolt API resources — projects, tasks, users, and teams — including parameters, curl examples, and response shapes."
+---
+
+The Zolt API exposes four core resource types: **Projects**, **Tasks**, **Users**, and **Teams**. Together they cover the full lifecycle of work inside a Zolt workspace — from creating a project and populating it with tasks, to assigning work to individual users or entire teams. Each section below documents every endpoint for that resource, its required and optional parameters, and a ready-to-run curl example.
+
+---
+
+## Projects
+
+Projects are the top-level containers in Zolt. Every task belongs to a project, and every project belongs to a workspace.
+
+### `GET /projects` — List Projects
+
+Returns a paginated list of all projects your API key has access to. See [Pagination](/developers/api/pagination) for filtering and cursor options.
+
+```bash title="List projects"
+curl -X GET https://api.zolt.io/v1/projects \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json title="Response"
+{
+  "items": [
+    {
+      "id": "proj_abc123",
+      "name": "Q4 Marketing Campaign",
+      "description": "All tasks for Q4",
+      "visibility": "team",
+      "created_at": "2024-01-15T10:00:00Z",
+      "updated_at": "2024-01-15T10:00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 1,
+    "limit": 20,
+    "has_more": false,
+    "next_cursor": null
+  }
+}
+```
+
+### `POST /projects` — Create a Project
+
+Creates a new project in your workspace. The project owner is set to the user whose API key is used.
+
+<ParamField body="name" type="string" required>
+  The display name of the project. Must be between 1 and 150 characters.
+</ParamField>
+
+<ParamField body="description" type="string">
+  An optional plain-text description of the project's purpose. Maximum 1 000 characters.
+</ParamField>
+
+<ParamField body="visibility" type="string">
+  Controls who in the workspace can see the project. Accepted values: `private` (only members explicitly added), `team` (visible to the whole workspace team), or `public` (accessible via a shareable link). Defaults to `private`.
+</ParamField>
+
+```bash title="Create a project"
+curl -X POST https://api.zolt.io/v1/projects \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Q4 Marketing Campaign",
+    "description": "All tasks for Q4",
+    "visibility": "team"
+  }'
+```
+
+### `GET /projects/{project_id}` — Get a Project
+
+Returns a single project by its ID.
+
+```bash title="Get a project"
+curl -X GET https://api.zolt.io/v1/projects/proj_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json title="Response"
+{
+  "data": {
+    "id": "proj_abc123",
+    "name": "Q4 Marketing Campaign",
+    "description": "All tasks for Q4",
+    "visibility": "team",
+    "created_at": "2024-01-15T10:00:00Z",
+    "updated_at": "2024-01-15T10:00:00Z"
+  }
+}
+```
+
+### `PATCH /projects/{project_id}` — Update a Project
+
+Updates one or more fields on an existing project. Only include the fields you want to change — all others remain unchanged.
+
+```bash title="Update a project"
+curl -X PATCH https://api.zolt.io/v1/projects/proj_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Q4 Marketing Campaign (Final)", "visibility": "public"}'
+```
+
+### `DELETE /projects/{project_id}` — Delete a Project
+
+<Warning>
+  Deleting a project is **permanent and irreversible**. All tasks, comments, and attachments within the project are deleted immediately and cannot be recovered. Make sure you have exported or backed up any data you need before calling this endpoint.
+</Warning>
+
+```bash title="Delete a project"
+curl -X DELETE https://api.zolt.io/v1/projects/proj_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+A successful deletion returns `204 No Content` with an empty response body.
+
+---
+
+## Tasks
+
+Tasks live inside projects and represent individual units of work. Every task is tied to exactly one project.
+
+### `GET /projects/{project_id}/tasks` — List Tasks
+
+Returns a paginated list of all tasks in a given project. Supports filtering by `status`, `assignee_id`, and `priority`. See [Pagination & Filtering](/developers/api/pagination) for details.
+
+```bash title="List tasks in a project"
+curl -X GET https://api.zolt.io/v1/projects/proj_abc123/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### `POST /projects/{project_id}/tasks` — Create a Task
+
+Creates a new task inside the specified project.
+
+<ParamField body="title" type="string" required>
+  The title of the task. Must be between 1 and 255 characters.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Optional longer-form description of the work to be done. Supports plain text up to 10 000 characters.
+</ParamField>
+
+<ParamField body="assignee_id" type="string">
+  The ID of the workspace member to assign the task to (e.g., `user_xyz789`). The user must be a member of the workspace.
+</ParamField>
+
+<ParamField body="due_date" type="string">
+  The deadline for the task as an ISO 8601 datetime string (e.g., `2025-03-31T17:00:00Z`). Omit to leave the task with no due date.
+</ParamField>
+
+<ParamField body="priority" type="string">
+  Task urgency level. Accepted values: `low`, `medium`, `high`, or `urgent`. Defaults to `medium` if omitted.
+</ParamField>
+
+<ParamField body="status" type="string">
+  Initial status of the task. Accepted values: `backlog`, `todo`, `in_progress`, `in_review`, or `done`. Defaults to `backlog`.
+</ParamField>
+
+```bash title="Create a task"
+curl -X POST https://api.zolt.io/v1/projects/proj_abc123/tasks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Write Q4 blog post",
+    "description": "Draft and publish the Q4 campaign recap post.",
+    "assignee_id": "user_xyz789",
+    "due_date": "2025-03-31T17:00:00Z",
+    "priority": "high",
+    "status": "todo"
+  }'
+```
+
+```json title="Response"
+{
+  "data": {
+    "id": "task_def456",
+    "project_id": "proj_abc123",
+    "title": "Write Q4 blog post",
+    "description": "Draft and publish the Q4 campaign recap post.",
+    "assignee_id": "user_xyz789",
+    "due_date": "2025-03-31T17:00:00Z",
+    "priority": "high",
+    "status": "todo",
+    "created_at": "2025-01-20T09:00:00Z",
+    "updated_at": "2025-01-20T09:00:00Z"
+  }
+}
+```
+
+### `GET /tasks/{task_id}` — Get a Task
+
+Returns a single task by its ID, regardless of which project it belongs to.
+
+```bash title="Get a task"
+curl -X GET https://api.zolt.io/v1/tasks/task_def456 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### `PATCH /tasks/{task_id}` — Update a Task
+
+Updates one or more fields on an existing task. Accepts any combination of the same fields available at creation — send only the fields you want to change.
+
+```bash title="Update a task"
+curl -X PATCH https://api.zolt.io/v1/tasks/task_def456 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "in_progress", "priority": "urgent"}'
+```
+
+### `DELETE /tasks/{task_id}` — Delete a Task
+
+Permanently deletes a task and all its comments. Returns `204 No Content` on success.
+
+```bash title="Delete a task"
+curl -X DELETE https://api.zolt.io/v1/tasks/task_def456 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+---
+
+## Users
+
+User endpoints let you retrieve profile information for the authenticated caller and enumerate all members of a workspace.
+
+### `GET /users/me` — Get the Authenticated User
+
+Returns the full profile of the user whose API key is present in the request. Use this endpoint to verify that authentication is working correctly and to retrieve your own user ID.
+
+```bash title="Get authenticated user"
+curl -X GET https://api.zolt.io/v1/users/me \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json title="Response"
+{
+  "data": {
+    "id": "user_xyz789",
+    "name": "Alex Rivera",
+    "email": "alex.rivera@example.com",
+    "role": "admin",
+    "avatar_url": "https://cdn.zolt.io/avatars/user_xyz789.png",
+    "created_at": "2024-07-01T08:00:00Z"
+  }
+}
+```
+
+### `GET /workspace/members` — List Workspace Members
+
+Returns a paginated list of every member in the workspace associated with your API key. Useful for populating `assignee_id` when creating or updating tasks.
+
+```bash title="List workspace members"
+curl -X GET https://api.zolt.io/v1/workspace/members \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json title="Response"
+{
+  "items": [
+    {
+      "id": "user_xyz789",
+      "name": "Alex Rivera",
+      "email": "alex.rivera@example.com",
+      "role": "admin"
+    },
+    {
+      "id": "user_mno321",
+      "name": "Jordan Lee",
+      "email": "jordan.lee@example.com",
+      "role": "member"
+    }
+  ],
+  "meta": {
+    "total": 2,
+    "limit": 20,
+    "has_more": false,
+    "next_cursor": null
+  }
+}
+```
+
+---
+
+## Teams
+
+Teams group workspace members together so you can assign work and manage permissions at the group level.
+
+### `GET /teams` — List Teams
+
+Returns a paginated list of all teams in the workspace.
+
+```bash title="List teams"
+curl -X GET https://api.zolt.io/v1/teams \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### `POST /teams` — Create a Team
+
+Creates a new team and optionally adds members at creation time.
+
+<ParamField body="name" type="string" required>
+  The display name for the team. Must be between 1 and 100 characters and unique within the workspace.
+</ParamField>
+
+<ParamField body="member_ids" type="array">
+  An optional array of user ID strings to add as members when the team is created (e.g., `["user_xyz789", "user_mno321"]`). You can also add members later via the Zolt UI.
+</ParamField>
+
+```bash title="Create a team"
+curl -X POST https://api.zolt.io/v1/teams \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Marketing",
+    "member_ids": ["user_xyz789", "user_mno321"]
+  }'
+```
+
+```json title="Response"
+{
+  "data": {
+    "id": "team_ghi789",
+    "name": "Marketing",
+    "member_count": 2,
+    "created_at": "2025-01-20T09:30:00Z",
+    "updated_at": "2025-01-20T09:30:00Z"
+  }
+}
+```
+
+### `GET /teams/{team_id}` — Get a Team
+
+Returns a single team along with the full list of its current members.
+
+```bash title="Get a team"
+curl -X GET https://api.zolt.io/v1/teams/team_ghi789 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json title="Response"
+{
+  "data": {
+    "id": "team_ghi789",
+    "name": "Marketing",
+    "members": [
+      { "id": "user_xyz789", "name": "Alex Rivera", "role": "admin" },
+      { "id": "user_mno321", "name": "Jordan Lee", "role": "member" }
+    ],
+    "created_at": "2025-01-20T09:30:00Z",
+    "updated_at": "2025-01-20T09:30:00Z"
+  }
+}
+```
+
+### `DELETE /teams/{team_id}` — Delete a Team
+
+Permanently removes the team from the workspace. Members are not deleted — only the team grouping itself is removed. Returns `204 No Content` on success.
+
+```bash title="Delete a team"
+curl -X DELETE https://api.zolt.io/v1/teams/team_ghi789 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Info>
+  Deleting a team does not remove its members from the workspace, nor does it affect tasks or projects that were assigned to the team. You will need to reassign those resources manually if needed.
+</Info>

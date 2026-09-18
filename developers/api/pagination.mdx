@@ -1,0 +1,173 @@
+---
+title: "Paginate and Filter Zolt API List Responses"
+sidebarTitle: "Pagination"
+description: "Learn how cursor-based pagination, filtering, and sorting work across all Zolt API list endpoints to retrieve exactly the data you need."
+---
+
+Every Zolt API endpoint that returns a collection of resources — projects, tasks, team members, and more — uses **cursor-based pagination**. Rather than relying on page numbers or row offsets (which can produce duplicates or skipped records when data changes between requests), Zolt returns an opaque cursor string you pass into your next request to continue from exactly where you left off. This approach is reliable, consistent, and efficient even across large datasets.
+
+## Making a Paginated Request
+
+Use two query parameters to control the size and starting position of each page:
+
+- **`limit`** — the number of records to return per request. Defaults to `20`; maximum is `100`.
+- **`cursor`** — an opaque, base64-encoded string returned by the previous response. Omit this parameter to fetch the first page.
+
+```bash title="First page"
+GET https://api.zolt.io/v1/projects?limit=20
+```
+
+```bash title="Subsequent page using a cursor"
+GET https://api.zolt.io/v1/projects?limit=20&cursor=eyJpZCI6MTIzfQ
+```
+
+<Note>
+  Treat the cursor value as an opaque string — do not attempt to decode, modify, or construct cursor values manually. Their format may change without notice.
+</Note>
+
+## Pagination Response Envelope
+
+All list endpoints return the same envelope structure: an `items` array containing the resources for the current page, and a `meta` object with pagination state.
+
+```json title="Paginated response envelope"
+{
+  "items": [
+    {
+      "id": "proj_abc123",
+      "name": "Q4 Marketing Campaign",
+      "visibility": "team",
+      "created_at": "2024-01-15T10:00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 143,
+    "limit": 20,
+    "has_more": true,
+    "next_cursor": "eyJpZCI6MTQ0fQ"
+  }
+}
+```
+
+<ResponseField name="items" type="array" required>
+  The array of resource objects for the current page. The schema of each object matches the single-resource response for that endpoint.
+</ResponseField>
+
+<ResponseField name="meta" type="object" required>
+  Pagination metadata for the current response.
+
+  <Expandable title="meta fields">
+    <ResponseField name="meta.total" type="integer">
+      The total number of records matching the current query across all pages. Useful for displaying progress (e.g., "Showing 20 of 143").
+    </ResponseField>
+
+    <ResponseField name="meta.limit" type="integer">
+      The `limit` value that was applied to this request, either the value you supplied or the default of `20`.
+    </ResponseField>
+
+    <ResponseField name="meta.has_more" type="boolean">
+      `true` if there are additional pages of results to fetch. When `false`, you have retrieved the last page and should stop iterating.
+    </ResponseField>
+
+    <ResponseField name="meta.next_cursor" type="string | null">
+      The cursor string to pass as the `cursor` query parameter in your next request. Returns `null` when `has_more` is `false` — there are no further pages to retrieve.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Filtering
+
+Narrow list results by passing filter parameters as `filter[field]=value` query strings. Multiple filters are applied with `AND` logic — a record must match all provided filters to be included.
+
+| Filter parameter          | Applies to         | Description                                                   |
+|---------------------------|--------------------|---------------------------------------------------------------|
+| `filter[status]`          | Tasks              | Return only tasks with the given status value.                |
+| `filter[assignee_id]`     | Tasks              | Return only tasks assigned to the specified user ID.          |
+| `filter[project_id]`      | Tasks              | Return only tasks belonging to the specified project.         |
+| `filter[priority]`        | Tasks              | Return only tasks with the given priority (`low`, `medium`, `high`, `urgent`). |
+| `filter[visibility]`      | Projects           | Return only projects with the given visibility setting.       |
+
+```bash title="Filter tasks by status and assignee"
+GET https://api.zolt.io/v1/tasks?filter[status]=in_progress&filter[assignee_id]=user_abc
+```
+
+```bash title="Filter high-priority tasks in a project"
+GET https://api.zolt.io/v1/projects/proj_abc123/tasks?filter[priority]=high&filter[status]=todo
+```
+
+<Tip>
+  Combine filtering with pagination by appending both sets of parameters to the same request. The cursor returned will preserve your active filters as you iterate through pages.
+</Tip>
+
+## Sorting
+
+Control the order of results with the `sort` query parameter. Pass a field name to sort ascending, or prefix the field name with `-` (a hyphen) to sort descending.
+
+| Example value       | Meaning                                   |
+|---------------------|-------------------------------------------|
+| `sort=due_date`     | Sort by due date, oldest first (ascending) |
+| `sort=-due_date`    | Sort by due date, newest first (descending) |
+| `sort=created_at`   | Sort by creation date, oldest first        |
+| `sort=-created_at`  | Sort by creation date, newest first        |
+| `sort=title`        | Sort alphabetically by title (A→Z)         |
+
+```bash title="Tasks sorted by due date, most urgent first"
+GET https://api.zolt.io/v1/projects/proj_abc123/tasks?sort=due_date
+```
+
+```bash title="Projects sorted by most recently updated"
+GET https://api.zolt.io/v1/projects?sort=-updated_at
+```
+
+<Info>
+  Not every field supports sorting on every resource type. If you supply an unsupported `sort` field, the API returns a `400 Bad Request` error with a message indicating which fields are sortable for that resource.
+</Info>
+
+## Iterating Through All Pages
+
+To retrieve every record in a collection, loop until `meta.has_more` is `false`. The example below fetches every task across all pages and collects them into a single array.
+
+```javascript title="Iterate all pages (JavaScript)"
+async function getAllTasks(projectId, apiKey) {
+  const baseUrl = `https://api.zolt.io/v1/projects/${projectId}/tasks`;
+  const allTasks = [];
+  let cursor = null;
+  let hasMore = true;
+
+  while (hasMore) {
+    const url = new URL(baseUrl);
+    url.searchParams.set("limit", "100"); // fetch max records per page
+    if (cursor) {
+      url.searchParams.set("cursor", cursor);
+    }
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(`API error ${response.status}: ${err.error.message}`);
+    }
+
+    const { items, meta } = await response.json();
+
+    allTasks.push(...items);
+
+    hasMore = meta.has_more;
+    cursor = meta.next_cursor;
+  }
+
+  return allTasks;
+}
+
+// Usage
+const tasks = await getAllTasks("proj_abc123", "YOUR_API_KEY");
+console.log(`Retrieved ${tasks.length} tasks in total`);
+```
+
+<Warning>
+  When iterating large collections, be mindful of rate limits. Zolt enforces a default rate limit of **300 requests per minute** per API key. If you exceed this limit, the API returns `429 Too Many Requests`. Add a short delay between loop iterations or reduce your request frequency if you are processing very large workspaces.
+</Warning>

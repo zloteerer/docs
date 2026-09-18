@@ -1,13 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "name": "Zolt",
+  "projectType": "saas",
+  "projectName": "Zolt",
+  "projectDescription": "A management app with a public API for third-party integrations and comprehensive guides to help users get up and running quickly.",
   "theme": "luma",
-  "colors": {
-    "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
-  },
-  "favicon": "/favicon.svg",
+  "primaryColor": "#ef7025",
+  "lightColor": "#eec9bc",
+  "darkColor": "#4fa1ab",
   "navigation": {
     "tabs": [
       {
@@ -108,11 +106,21 @@
       }
     ]
   },
-  "navbar": {
-    "primary": {
-      "type": "button",
-      "label": "Sign Up",
-      "href": "https://app.zolt.io/signup"
-    }
-  }
+  "keyFeatures": [
+    "Project and task management",
+    "Team collaboration and role-based permissions",
+    "Third-party integration support via public API",
+    "Webhooks for real-time event notifications",
+    "Automation workflows",
+    "Data export",
+    "Account and billing management",
+    "Security controls"
+  ],
+  "publicApiSurface": [
+    "REST API with authentication via API keys",
+    "Webhook event subscriptions",
+    "Resources: projects, tasks, users, teams",
+    "Pagination, filtering, and sorting on list endpoints",
+    "API changelog and versioning"
+  ]
 }

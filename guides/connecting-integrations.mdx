@@ -1,0 +1,72 @@
+---
+title: "Connect Third-Party Apps to Your Zolt Workspace"
+sidebarTitle: "Connecting Integrations"
+description: "Learn how to browse, install, authorize, and manage native third-party integrations directly from the Zolt settings panel."
+---
+
+Zolt's integrations panel lets you connect the tools your team already uses — from chat apps to cloud storage to developer workflows — so your work stays in sync without manual updates. Once connected, integrations surface relevant data inside Zolt and can trigger automations, sync files, and post notifications automatically.
+
+## Finding Available Integrations
+
+All available integrations live in one place. To browse them, navigate to **Settings → Integrations**. Integrations are organized into four categories to help you find what you need quickly:
+
+- **Communication** — tools like Slack and Microsoft Teams for notifications and mentions
+- **Storage** — cloud file services like Google Drive and Dropbox for attaching and syncing files
+- **Development** — code platforms like GitHub and GitLab for linking pull requests and commits to tasks
+- **Automation** — workflow tools like Zapier and Make for building cross-app automations
+
+Use the search bar at the top of the Integrations page to find a specific tool by name, or filter by category using the tabs along the left sidebar.
+
+## Installing an Integration
+
+Connecting a new integration takes just a few steps. Most integrations use OAuth, so you'll be redirected to the third-party service to authorize access — you won't need to copy API keys manually.
+
+<Steps>
+  <Step title="Find the Integration">
+    Go to **Settings → Integrations** and locate the app you want to connect. You can browse by category or use the search bar. Click the integration card to open its detail page.
+  </Step>
+  <Step title="Click Connect">
+    On the integration detail page, click the **Connect** button. A brief description of what data the integration accesses is shown here — review it before proceeding.
+  </Step>
+  <Step title="Authorize in the OAuth Popup">
+    A popup window opens and takes you to the third-party service's authorization screen. Sign in to that service if prompted, then review the permissions Zolt is requesting.
+  </Step>
+  <Step title="Confirm Permissions">
+    Click **Allow** or **Authorize** on the third-party screen to grant Zolt access. The popup closes automatically and you're returned to Zolt, where the integration now shows a **Connected** badge.
+  </Step>
+</Steps>
+
+## Managing Connected Apps
+
+After connecting integrations, you can review and manage all of them from the same **Settings → Integrations** page. Switch to the **Connected** tab to see only the apps currently linked to your workspace.
+
+For each connected app you can:
+
+- **View connection details** — see which account or workspace is linked and when the connection was established
+- **Re-authorize** — if an integration loses access (for example, after a password change), click **Re-authorize** to go through the OAuth flow again and restore the connection
+- **Disconnect** — click **Disconnect** to revoke Zolt's access to that service; this does not delete any data already synced, but stops future syncing
+
+<Info>
+  Re-authorizing an integration does not reset any configuration or automation rules you've set up that depend on it.
+</Info>
+
+## Popular Integrations
+
+<CardGroup cols={2}>
+  <Card title="Slack" icon="slack">
+    Receive Zolt notifications in Slack channels, get pinged when you're assigned a task, and post task updates directly from Slack. Great for keeping distributed teams in the loop without switching apps.
+  </Card>
+  <Card title="Google Drive" icon="google-drive">
+    Attach Google Docs, Sheets, and Slides directly to Zolt tasks. Files stay linked to their live Google Drive versions, so your team always sees the latest content without re-uploading.
+  </Card>
+  <Card title="GitHub" icon="github">
+    Link pull requests, commits, and branches to Zolt tasks. When a PR is merged, the associated task can automatically move to a new status — keeping your project board up to date with your code.
+  </Card>
+  <Card title="Zapier" icon="bolt">
+    Connect Zolt to thousands of apps through Zapier's no-code automation platform. Trigger Zaps when tasks are created or completed, and push data from external tools back into Zolt without writing code.
+  </Card>
+</CardGroup>
+
+<Note>
+  Want to build a custom integration instead of using a native one? Zolt's public REST API and webhooks let you connect any tool or internal system. Head to the [Developer Docs](/developers/introduction) to get started.
+</Note>

@@ -1,0 +1,74 @@
+---
+title: "Export Your Zolt Data to CSV or JSON"
+sidebarTitle: "Data Export"
+description: "Export project and task data from Zolt in CSV or JSON format for reporting, backups, or further analysis in external tools."
+---
+
+Exporting data from Zolt gives you a portable snapshot of your projects and tasks that you can use for reporting, archiving, auditing, or feeding into other tools. Whether you need a quick CSV of a single project or a full workspace backup in JSON, Zolt makes both available without requiring technical knowledge.
+
+## Exporting a Project
+
+You can export any individual project you have access to directly from the project view. The exported file contains all tasks in that project along with their associated data.
+
+<Steps>
+  <Step title="Open the Project">
+    Navigate to the project you want to export from the left sidebar. The project must be open to access its export options.
+  </Step>
+  <Step title="Open the Project Menu">
+    Click the **⋯** (More) icon next to the project name in the top header or sidebar. This opens the project options menu.
+  </Step>
+  <Step title="Select Export">
+    From the dropdown menu, select **Export**. A dialog box appears with format and content options.
+  </Step>
+  <Step title="Choose a Format">
+    Select either **CSV** or **JSON** as your export format:
+    - **CSV** is ideal for opening in spreadsheet apps like Excel or Google Sheets
+    - **JSON** is best for programmatic processing or importing into other systems
+  </Step>
+  <Step title="Click Download">
+    Click **Download** to generate and save the file to your device. Large projects may take a few seconds to prepare.
+  </Step>
+</Steps>
+
+## Workspace-Level Export
+
+Workspace **Admins** and **Owners** can export all data across every project in the workspace at once. This is useful for full backups, compliance requirements, or migrating to another platform.
+
+To perform a workspace-level export:
+
+1. Go to **Settings → Data → Export**
+2. Choose your preferred format (CSV or JSON)
+3. Select whether to include comments in the export
+4. Click **Request Export**
+
+Because workspace exports can be large, Zolt prepares the file asynchronously. You'll receive an in-app notification and an email with a download link when the export is ready. Download links expire after **48 hours**.
+
+<Info>
+  Only workspace Owners and Admins can access the workspace-level export. Project-level exports are available to any member with at least Commenter access to that project.
+</Info>
+
+## What's Included in an Export
+
+Both project-level and workspace-level exports contain the following fields for each task:
+
+| Field | Notes |
+|---|---|
+| **Task name** | The full task title |
+| **Section** | The section or column the task belongs to |
+| **Assignees** | All members assigned to the task |
+| **Due date** | Date and time, in UTC |
+| **Priority** | None, Low, Medium, High, or Urgent |
+| **Status** | Current status label |
+| **Comments** | Included only if you select the option during export |
+
+Custom fields you've added to a project are also included in the export, using the field name as the column header.
+
+## Using the API for Programmatic Export
+
+If you need to pull data on a schedule — for example, refreshing a dashboard nightly or syncing tasks with a data warehouse — the Zolt REST API is the right tool. The API lets you query tasks, projects, and members programmatically and receive structured JSON responses you can feed directly into pipelines.
+
+See the [API Resources reference](/developers/api/resources) for full documentation on available endpoints, query parameters, and response schemas.
+
+<Note>
+  Zolt exports include only **active, non-deleted data** by default. Tasks and projects that have been permanently deleted are not recoverable through exports. Deleted items remain in Zolt's systems for 30 days after deletion, after which they are purged in accordance with the data retention policy. If you need to recover recently deleted data, contact Zolt Support before the 30-day window closes.
+</Note>

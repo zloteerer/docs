@@ -1,0 +1,62 @@
+---
+title: "Build Integrations with the Zolt REST API"
+sidebarTitle: "Introduction"
+description: "Learn what the Zolt REST API offers, how it's designed, and where to start building third-party integrations with projects, tasks, and teams."
+---
+
+The Zolt REST API gives third-party developers programmatic access to everything inside Zolt — projects, tasks, team members, and more. Whether you're building a custom dashboard, syncing Zolt data with an external system, or automating workflows for your organization, the API provides a stable, versioned interface designed to integrate cleanly into any stack.
+
+## What You Can Do
+
+The Zolt API supports a wide range of integration scenarios. With it, you can:
+
+- **Manage projects and tasks** — create, update, reorder, and delete projects and their associated tasks programmatically
+- **Manage team members** — invite users, update roles, and retrieve membership details for any team in your organization
+- **Receive real-time events via webhooks** — subscribe to Zolt events and receive instant HTTP callbacks when something changes, eliminating the need to poll
+- **Export data** — pull structured JSON data for reporting, backups, or migration into other tools
+- **Automate workflows** — trigger task assignments, status transitions, and notifications from external systems
+
+## Base URL
+
+All API requests are made to the following base URL. Every endpoint path in this documentation is relative to this root.
+
+```http title="Base URL"
+https://api.zolt.io/v1
+```
+
+## API Design
+
+The Zolt API is a RESTful API that communicates exclusively using JSON payloads. Requests must include a `Content-Type: application/json` header when sending a body. The API follows standard REST conventions:
+
+- **GET** — retrieve a resource or list of resources
+- **POST** — create a new resource
+- **PUT** — replace a resource entirely
+- **PATCH** — partially update a resource
+- **DELETE** — remove a resource
+
+Responses use standard HTTP status codes to indicate success or failure. A `2xx` code means the request succeeded, `4xx` codes indicate a client error (such as a missing field or invalid API key), and `5xx` codes indicate a server-side problem. Full details on every status code and error shape are available in the [Errors](/developers/errors) reference.
+
+## Getting Started
+
+The two most important places to start are authentication — so your requests are accepted — and the API reference, which documents every available endpoint.
+
+<CardGroup cols={2}>
+  <Card
+    title="Authentication"
+    icon="key"
+    href="/developers/authentication"
+  >
+    Learn how to generate an API key and attach it to every request you make to the Zolt API.
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/developers/api/overview"
+  >
+    Browse the full endpoint reference for projects, tasks, members, webhooks, and more.
+  </Card>
+</CardGroup>
+
+<Note>
+  The current API version is **v1**, reflected in the base URL. Zolt maintains backward compatibility within a version — fields may be added, but existing fields will not be removed or renamed without a version bump. When breaking changes are necessary, a new version (e.g., `v2`) will be released alongside advance notice and a documented migration path. Always pin your integration to a specific version to avoid unexpected behavior.
+</Note>

@@ -1,0 +1,74 @@
+---
+title: "Automate Repetitive Tasks with Zolt Workflows"
+sidebarTitle: "Automation"
+description: "Set up automation rules in Zolt to trigger actions automatically based on task status changes, due dates, assignments, and other project events."
+---
+
+Automation in Zolt lets you eliminate the manual, repetitive work that slows teams down — things like moving tasks between sections, reassigning work when a status changes, or pinging a project manager when something is overdue. By defining simple rules once, you can keep your projects moving without anyone having to remember to do it manually.
+
+## What Is Automation?
+
+Every automation rule in Zolt follows the same three-part model: a **trigger**, an optional **condition**, and an **action**.
+
+- **Trigger** — the event that starts the rule (e.g., a task's status changes to "Done")
+- **Condition** — an optional filter that narrows when the rule fires (e.g., only if the task is in the "Backend" section)
+- **Action** — what Zolt does automatically when the trigger and condition are met (e.g., send a notification to the project manager)
+
+A complete example: *When a task is marked Done → and the task has a "High Priority" label → notify the project manager and move the task to the "Completed" section.*
+
+Rules run in real time, the moment a trigger event occurs. You can set up as many rules as your plan allows, and they apply independently of one another.
+
+## Creating an Automation Rule
+
+<Steps>
+  <Step title="Open the Automations Tab">
+    Navigate to the project where you want the rule to apply. Click the **Automations** tab in the project's top navigation bar. If you don't see it, click the **⋯** (More) menu and enable Automations for this project.
+  </Step>
+  <Step title="Click New Rule">
+    Click the **+ New Rule** button in the top-right corner of the Automations panel. The rule builder opens as a side panel.
+  </Step>
+  <Step title="Choose a Trigger">
+    Select the event that should start the rule from the **Trigger** dropdown. For example, choose **Task status changes** to fire the rule whenever a task moves to a different status column.
+  </Step>
+  <Step title="Set a Condition (Optional)">
+    Click **+ Add Condition** to narrow when the rule fires. You can filter by section, assignee, label, priority, or custom field. Leave this blank if you want the rule to apply to every matching trigger event in the project.
+  </Step>
+  <Step title="Choose an Action">
+    Select what Zolt should do when the rule fires from the **Action** dropdown. You can chain multiple actions together — for example, both sending a notification and moving a task — by clicking **+ Add Action**.
+  </Step>
+  <Step title="Save the Rule">
+    Give your rule a descriptive name so it's easy to identify later, then click **Save Rule**. The rule activates immediately and appears in your Automations list.
+  </Step>
+</Steps>
+
+## Available Triggers
+
+You can initiate an automation rule from any of the following events:
+
+- **Task status changes** — fires when a task moves to any status, or to a specific status you define
+- **Due date approaching** — fires a set number of days before a task's due date (you choose the interval)
+- **Task created** — fires whenever a new task is added to the project
+- **Task assigned** — fires when a task is assigned to any member, or to a specific member you choose
+
+## Available Actions
+
+When a rule's trigger and conditions are met, Zolt can perform any of the following actions:
+
+- **Send a notification** — notify one or more workspace members via in-app notification and, optionally, email
+- **Move task to section** — automatically shift the task into a different section of the current project
+- **Assign to member** — assign or reassign the task to a specific team member
+- **Create a subtask** — add a predefined subtask to the triggered task, useful for checklists and recurring follow-ups
+
+## Managing Rules
+
+All of your project's automation rules are listed in the **Automations** tab. From here you can:
+
+- **Enable or disable** a rule using the toggle switch next to its name — disabled rules stay saved but don't fire
+- **Edit a rule** by clicking its name to reopen the rule builder and adjust the trigger, conditions, or actions
+- **Delete a rule** by clicking the **⋯** menu next to the rule and selecting **Delete** — this action is permanent and cannot be undone
+
+You can also view a **Run History** for each rule, which shows the last 50 times the rule fired and what action was taken, making it easy to audit or troubleshoot unexpected behavior.
+
+<Tip>
+  Before rolling out an automation to a live project, test it on a dedicated sample project with dummy tasks. This lets you confirm the rule fires correctly and takes the right action without affecting real work or sending unintended notifications to your team.
+</Tip>

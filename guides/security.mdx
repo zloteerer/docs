@@ -1,0 +1,81 @@
+---
+title: "Secure Your Zolt Account with 2FA and Access Controls"
+sidebarTitle: "Security"
+description: "Enable two-factor authentication, review active login sessions, access workspace audit logs, and keep your API keys secure in Zolt."
+---
+
+Protecting your Zolt account goes beyond a strong password. Zolt gives you several layers of security to control who can access your workspace and how — including two-factor authentication, session management, audit logs for workspace admins, and safe API key handling. Setting these up takes only a few minutes and significantly reduces the risk of unauthorized access.
+
+## Two-Factor Authentication (2FA)
+
+Two-factor authentication adds a second verification step to your login, requiring both your password and a one-time code from an authenticator app. Enable it to protect your account even if your password is ever compromised.
+
+<Warning>
+  When you enable 2FA, Zolt generates a set of **backup codes**. Save these codes somewhere safe — in a password manager, printed, or stored offline. If you lose access to your authenticator app and don't have backup codes, you will be locked out of your account and will need to contact Zolt Support to recover it.
+</Warning>
+
+<Steps>
+  <Step title="Open Security Settings">
+    Go to **Settings → Security**. You'll see the Two-Factor Authentication section with its current status shown as **Disabled**.
+  </Step>
+  <Step title="Click Enable 2FA">
+    Click the **Enable Two-Factor Authentication** button. Zolt confirms your identity by asking you to re-enter your password before continuing.
+  </Step>
+  <Step title="Scan the QR Code">
+    A QR code appears on screen. Open your authenticator app — such as Google Authenticator, Authy, or 1Password — and use it to scan the QR code. If your app doesn't support QR scanning, click **Enter code manually** to copy the setup key and paste it directly into your app.
+  </Step>
+  <Step title="Enter the Verification Code">
+    Your authenticator app generates a 6-digit code that refreshes every 30 seconds. Enter the current code into the field on screen and click **Verify and Enable**. Zolt confirms that 2FA is active.
+  </Step>
+  <Step title="Save Your Backup Codes">
+    Zolt displays 8 single-use backup codes. Download them as a text file or copy them to a secure location. Each code can only be used once. Click **Done** to finish setup.
+  </Step>
+</Steps>
+
+To disable 2FA later, return to **Settings → Security**, click **Disable Two-Factor Authentication**, and confirm with your password and a current 2FA code.
+
+## Managing Active Sessions
+
+Every time you sign in to Zolt — on a new device, browser, or location — a session is created. You can view and revoke these sessions to ensure only recognized devices have access to your account.
+
+To review your active sessions, go to **Settings → Security → Active Sessions**. Each session entry shows:
+
+- The device type and operating system
+- The browser used
+- The approximate location (based on IP address)
+- The date and time the session was created
+
+If you see a session you don't recognize, click **Revoke** next to it immediately. That session is terminated and whoever holds it is signed out. To sign out of all sessions at once — for example, after a suspected compromise — click **Revoke All Other Sessions** to invalidate every session except your current one.
+
+## Audit Log (Admins and Owners)
+
+Workspace Admins and Owners have access to the **Audit Log**, a chronological record of significant actions taken within the workspace. The audit log is a read-only record and cannot be modified or deleted.
+
+To access it, go to **Settings → Security → Audit Log**.
+
+The audit log records the following types of events:
+
+- **Member changes** — invitations sent, members added or removed, roles changed
+- **Permission changes** — project visibility changes, role permission updates
+- **Project activity** — projects created, archived, or permanently deleted
+- **Billing events** — plan upgrades, downgrades, and cancellations
+- **Security events** — 2FA enabled or disabled, API keys created or revoked, SSO configuration changes
+
+Each entry includes the **actor** (who performed the action), the **timestamp** (in UTC), the **affected resource**, and a brief description of the change. You can filter by event type or search by member name. Use the **Export** button to download the log as a CSV for compliance records.
+
+<Info>
+  The audit log retains up to **12 months** of history on the Business plan and **3 months** on the Pro plan. The Free plan does not include audit log access.
+</Info>
+
+## API Key Security
+
+If you use the Zolt REST API, your API keys grant the same level of access to your account data as your login credentials. Handle them with the same care as a password.
+
+Best practices for keeping your API keys secure:
+
+- **Never share keys** — do not paste API keys into Slack messages, emails, or public repositories
+- **Rotate regularly** — generate a new key every 90 days and revoke the old one
+- **Use environment variables** — store keys in server-side environment variables, not in source code
+- **Revoke immediately if exposed** — if a key is accidentally committed to a public repo or shared, revoke it right away from **Settings → Security → API Keys**
+
+See the [Authentication guide](/developers/authentication) in the Developer Docs for full details on generating keys, setting scopes, and using keys in API requests.

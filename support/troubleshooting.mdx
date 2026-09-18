@@ -1,0 +1,139 @@
+---
+title: "Troubleshoot Common Zolt Issues"
+sidebarTitle: "Troubleshooting"
+description: "Step-by-step solutions to the most common issues Zolt users encounter, from login problems to integration failures and performance slowdowns."
+---
+
+Most issues in Zolt have a quick fix. Use the sections below to diagnose and resolve the most common problems — organized by category so you can get back to work as fast as possible. If a problem isn't covered here, visit the [FAQ](/support/faq) or [contact support](/support/contact).
+
+## Login and Access Issues
+
+<AccordionGroup>
+  <Accordion title="I can't log in to my account">
+    If you're unable to log in, work through the following checks in order:
+
+    1. **Verify your email address** — Make sure you're using the email address associated with your Zolt account. Check for typos or extra spaces.
+    2. **Check your password** — Passwords are case-sensitive. If you're unsure, click **Forgot password?** on the login page to reset it.
+    3. **Try a password reset** — Go to [app.zolt.io](https://app.zolt.io), click **Forgot password?**, and follow the instructions. Check your spam folder if the email doesn't arrive within a few minutes.
+    4. **Check for SSO** — If your workspace uses Google, GitHub, or SAML SSO, click the corresponding SSO button instead of entering a password. Password login may be disabled for SSO-enabled workspaces.
+    5. **Clear your browser cookies** — Stale session cookies can prevent login. Clear cookies for `app.zolt.io` and try again.
+
+    If none of the above work, your account may be locked — see the accordion below.
+  </Accordion>
+
+  <Accordion title="I'm not receiving the verification email">
+    Zolt sends verification and password reset emails from `noreply@zolt.io`. If the email hasn't arrived:
+
+    1. **Check your spam or junk folder** — Email providers sometimes filter automated messages. Look for an email from `noreply@zolt.io`.
+    2. **Wait a few minutes** — Email delivery can occasionally be delayed by up to 5 minutes.
+    3. **Resend the verification email** — On the login or verification screen, click **Resend Email**. You can request a new email once every 60 seconds.
+    4. **Check the email address** — Make sure the address you registered with doesn't have a typo. If it does, create a new account with the correct address or [contact support](/support/contact) to have your email updated.
+    5. **Allowlist the sender** — Ask your IT or email administrator to allowlist `noreply@zolt.io` and the domain `zolt.io` to prevent future filtering.
+  </Accordion>
+
+  <Accordion title="My account is locked">
+    Zolt automatically locks an account after **10 consecutive failed login attempts** as a security measure. A locked account cannot be accessed until it is unlocked.
+
+    To unlock your account, [contact Zolt support](/support/contact) and provide:
+    - The email address associated with the account
+    - Your workspace name
+    - A brief description of what happened
+
+    Support will verify your identity and unlock the account. For Business plan customers, include "URGENT" in your email subject to trigger the priority queue. To prevent future lockouts, consider enabling SSO or using a password manager.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Project and Task Issues
+
+<AccordionGroup>
+  <Accordion title="My task isn't showing up in the project">
+    If a task you know exists isn't visible, check the following:
+
+    1. **Check active filters** — Open the project view and look for any active filters (assignee, status, due date, label). Click **Clear Filters** to reset and see all tasks.
+    2. **Check the project visibility** — If the project is set to **Private**, only invited members can see it. Ask a project admin to verify your membership.
+    3. **Check for archived tasks** — Archived tasks are hidden from the default view. Click **View > Show Archived** to reveal them. You can unarchive a task by opening it and clicking **Unarchive**.
+    4. **Check the correct project** — Tasks belong to a single project. Confirm you're looking in the right project, especially if your workspace has similarly named projects.
+    5. **Search for the task** — Use the global search bar (⌘K or Ctrl+K) to find the task by name across all projects you have access to.
+  </Accordion>
+
+  <Accordion title="I can't edit a task">
+    If a task appears read-only or your changes aren't saving, the most likely cause is your role in the project:
+
+    - **Viewer role** — Viewers can read tasks but cannot create, edit, or delete them. Contact a project admin or workspace owner to have your role upgraded to **Member** or **Admin**.
+    - **Task is locked** — Some tasks can be manually locked by admins to prevent edits. Look for a lock icon on the task. Only admins can unlock tasks.
+    - **Project is archived** — Archived projects are read-only. An admin must unarchive the project before tasks can be edited.
+
+    To check your role, open the project, click the **Members** tab, and find your name in the list. If you believe your role is incorrect, contact your workspace admin.
+  </Accordion>
+
+  <Accordion title="Notifications aren't working">
+    If you're not receiving notifications from Zolt, check each of the following:
+
+    1. **Check your notification settings** — Go to **Settings > Notifications** and confirm that the notification types you expect are enabled (email, in-app, or Slack).
+    2. **Check your spam or junk folder** — Email notifications from Zolt may be filtered. Look for messages from `notifications@zolt.io` and mark them as not spam.
+    3. **Check the notification frequency** — Zolt offers instant, daily digest, and weekly digest options. If you selected a digest, notifications are batched rather than sent immediately.
+    4. **Check your Slack integration** — If you rely on Slack notifications, go to **Settings > Integrations > Slack** and confirm the integration is active and the correct channels are configured. If the integration shows a warning, re-authorize it.
+    5. **Check project-level notification settings** — Each project has its own notification preferences. Open the project, click **Settings**, and verify your notification preferences for that project.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Integration Issues
+
+<AccordionGroup>
+  <Accordion title="My integration stopped working">
+    Integrations can stop working when the authorization token expires or is revoked. To restore a broken integration:
+
+    1. Go to **Settings > Integrations**.
+    2. Find the affected integration — it will likely show a **Disconnected** or **Re-authorization required** status.
+    3. Click **Re-authorize** and follow the OAuth flow for the connected app.
+    4. Once re-authorized, test the integration by triggering a supported action (for example, creating a task that should sync to the external tool).
+
+    If re-authorization doesn't resolve the issue, disconnect the integration entirely, then reconnect it from scratch. Check the third-party app's own settings to confirm it hasn't revoked access on their side.
+  </Accordion>
+
+  <Accordion title="Webhooks aren't being delivered">
+    If your webhook endpoint isn't receiving events from Zolt, diagnose the issue using these steps:
+
+    1. **Verify the endpoint URL** — Go to **Settings > Developer > Webhooks** and confirm the registered URL is correct and publicly reachable. Zolt cannot deliver webhooks to `localhost` or private network addresses.
+    2. **Check for a 2xx response** — Zolt considers a webhook delivery successful only if your endpoint responds with an HTTP `2xx` status code within **10 seconds**. Any other status code (including redirects) is treated as a failure.
+    3. **Review delivery logs** — In **Settings > Developer > Webhooks**, click on the webhook and open the **Delivery Logs** tab. Each delivery attempt shows the response status, response body, and timestamp — use this to pinpoint the failure.
+    4. **Check for retries** — Zolt automatically retries failed webhook deliveries up to **5 times** with exponential backoff. If all retries fail, the webhook is marked as failed and you'll receive an email alert.
+    5. **Test with a public endpoint** — Use a service like [Webhook.site](https://webhook.site) to register a temporary endpoint and confirm Zolt is sending the events as expected.
+  </Accordion>
+
+  <Accordion title="The API returns 401 Unauthorized">
+    A `401 Unauthorized` response means the request is missing valid authentication credentials. Check each of the following:
+
+    1. **Confirm the API key exists and is active** — Go to **Settings > Developer > API Keys** and verify the key you're using is listed and not revoked. If it was deleted, generate a new key.
+    2. **Include the key as a Bearer token** — Zolt requires API keys to be passed in the `Authorization` header in the following format:
+       ```http title="Authorization Header"
+       Authorization: Bearer YOUR_API_KEY
+       ```
+    3. **Check for whitespace or encoding issues** — Extra spaces or newline characters in the API key string will cause authentication to fail. Copy the key directly from the Zolt dashboard.
+    4. **Verify the key's scope** — Some API keys are scoped to specific resources. Confirm the key has the necessary permissions for the endpoint you're calling.
+    5. **Check the workspace context** — API requests are scoped to a workspace. Ensure you're hitting the correct base URL for your workspace, e.g., `https://api.zolt.io/v1/`.
+
+    For more details, see the [API Authentication](/developers/authentication) reference in the Developer Docs.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Performance Issues
+
+If Zolt is running slowly, loading pages incompletely, or behaving unexpectedly in the browser, try these steps before contacting support:
+
+- **Hard refresh the page** — Press **Ctrl+Shift+R** (Windows/Linux) or **Cmd+Shift+R** (Mac) to force the browser to reload all assets without using the cache.
+- **Clear your browser cache** — In your browser settings, clear cached images and files for `app.zolt.io`. A stale cache can cause outdated scripts or styles to interfere with the app.
+- **Try incognito or private mode** — Open Zolt in an incognito window to rule out browser extensions or cached data as the cause.
+- **Try a different browser** — If the issue only appears in one browser, it's likely a browser-specific conflict. Zolt fully supports Chrome, Firefox, Safari, and Edge.
+- **Check your internet connection** — A slow or unstable connection can make Zolt appear unresponsive. Run a speed test or try switching networks.
+- **Check the Zolt status page** — Visit [status.zolt.io](https://status.zolt.io) to see if there are any active incidents or degraded services affecting performance.
+
+<Tip>
+  If an issue persists after working through the relevant steps above, [contact the Zolt support team](/support/contact). When you reach out, include your workspace ID, the browser and OS you're using, and a description of the steps you took — this helps support resolve your issue faster.
+</Tip>

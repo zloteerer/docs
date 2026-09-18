@@ -1,0 +1,153 @@
+---
+title: "Verify Zolt Webhook Signatures for Security"
+sidebarTitle: "Security"
+description: "Learn how to use Zolt's HMAC-SHA256 webhook signatures to confirm that every incoming webhook request genuinely originates from Zolt."
+---
+
+Anyone who discovers your webhook endpoint URL could send spoofed POST requests to it. To protect your integration, Zolt cryptographically signs every webhook delivery using HMAC-SHA256. Verifying this signature before processing a payload guarantees that the request came from Zolt and that the body was not tampered with in transit. Signature verification should be the first thing your webhook handler does — reject any request that fails the check before touching the payload data.
+
+## The Signature Header
+
+Every webhook request Zolt sends includes two security-related HTTP headers:
+
+| Header | Example value | Purpose |
+|---|---|---|
+| `X-Zolt-Signature` | `sha256=3b4c5d6e7f8a...` | HMAC-SHA256 signature of the raw request body, prefixed with `sha256=`. |
+| `X-Zolt-Timestamp` | `1705312200` | Unix timestamp (seconds) of when Zolt generated the request. Used to defend against replay attacks. |
+
+The value of `X-Zolt-Signature` is always formatted as `sha256=<hex_digest>`, where `<hex_digest>` is the lowercase hexadecimal HMAC-SHA256 of the **raw request body bytes** using your webhook's signing secret as the key.
+
+<Warning>
+  Never use plain string equality (`===`, `==`) to compare the signature from the header against your computed value. String comparison functions in most languages short-circuit on the first mismatched character, which exposes a timing side-channel that attackers can exploit to forge valid signatures. Always use a **timing-safe comparison** function such as `crypto.timingSafeEqual` (Node.js) or `hmac.compare_digest` (Python).
+</Warning>
+
+## Verifying the Signature
+
+Compute the expected HMAC-SHA256 signature from the **raw, unparsed request body** and your signing secret, then compare it to the value in `X-Zolt-Signature` using a timing-safe function. Do not parse the JSON before computing the HMAC — any whitespace normalization will produce a different digest.
+
+<CodeGroup>
+
+```javascript webhook-handler.js
+const crypto = require('crypto');
+
+function verifyWebhookSignature(payload, signature, secret) {
+  const expected = 'sha256=' + crypto
+    .createHmac('sha256', secret)
+    .update(payload, 'utf8')
+    .digest('hex');
+  return crypto.timingSafeEqual(
+    Buffer.from(expected),
+    Buffer.from(signature)
+  );
+}
+
+// Express.js example — use express.raw() to preserve the raw body
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const signature = req.headers['x-zolt-signature'];
+  const timestamp = req.headers['x-zolt-timestamp'];
+
+  if (!verifyWebhookSignature(req.body, signature, process.env.ZOLT_WEBHOOK_SECRET)) {
+    return res.status(401).send('Invalid signature');
+  }
+
+  // Safe to parse and process
+  const event = JSON.parse(req.body);
+  console.log('Received event:', event.event);
+  res.sendStatus(200);
+});
+```
+
+```python webhook_handler.py
+import hmac
+import hashlib
+import os
+from flask import Flask, request, abort
+
+app = Flask(__name__)
+
+def verify_webhook_signature(payload: bytes, signature: str, secret: str) -> bool:
+    expected = 'sha256=' + hmac.new(
+        secret.encode('utf-8'),
+        payload,
+        hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature)
+
+@app.route('/webhook', methods=['POST'])
+def handle_webhook():
+    signature = request.headers.get('X-Zolt-Signature', '')
+    secret = os.environ['ZOLT_WEBHOOK_SECRET']
+
+    # Use request.get_data() to access the raw, unparsed body bytes
+    if not verify_webhook_signature(request.get_data(), signature, secret):
+        abort(401)
+
+    event = request.get_json()
+    print(f"Received event: {event['event']}")
+    return '', 200
+```
+
+</CodeGroup>
+
+<Tip>
+  Always read the raw request body before your framework's JSON parser gets to it. Frameworks like Express may consume and normalize the body, breaking the HMAC computation. Use `express.raw()` in Node.js or `request.get_data()` in Flask to access the original bytes.
+</Tip>
+
+## Your Webhook Secret
+
+Each webhook endpoint you register has its own unique signing secret. Zolt generates this secret automatically and reveals it exactly once — either in the dashboard dialog immediately after you click **Save**, or in the `secret` field of the API response when you create the endpoint programmatically.
+
+```json title="POST /v1/webhooks response (secret shown once)"
+{
+  "id": "wh_01H9ABC",
+  "url": "https://yourapp.com/webhook",
+  "events": ["task.created", "task.updated"],
+  "secret": "whsec_a1b2c3d4e5f6...",
+  "created_at": "2024-01-15T10:00:00Z"
+}
+```
+
+Follow these guidelines when handling your secret:
+
+- **Store it immediately.** Zolt does not display or return the secret again after the initial response. If you lose it, you must rotate to a new secret.
+- **Keep it in a secrets manager.** Use an environment variable or a dedicated secrets store (such as AWS Secrets Manager, HashiCorp Vault, or your platform's equivalent) — never hard-code it in source files.
+- **Rotate it if compromised.** If you suspect your secret has been exposed, go to **Settings → Developer → Webhooks**, select the affected endpoint, and click **Rotate Secret**. Zolt will generate a new secret and immediately start signing deliveries with it. Update your handler with the new value before the rotation takes effect to avoid downtime.
+
+<Info>
+  Different endpoints have different secrets. If you register multiple webhook endpoints (for example, one for a production environment and one for staging), each endpoint has its own independent secret. Store and use the correct secret per endpoint.
+</Info>
+
+## Replay Attack Prevention
+
+A replay attack occurs when an attacker captures a legitimate webhook delivery and re-sends it to your endpoint later to trigger your handler a second time. Even if the signature is valid, processing a weeks-old event as if it just happened can corrupt your data or trigger unintended side effects.
+
+Zolt includes a `X-Zolt-Timestamp` header with every request, set to the Unix timestamp (in seconds) at which Zolt generated the delivery. To defend against replay attacks, check that this timestamp is within an acceptable window of your server's current time — a threshold of **5 minutes** is recommended:
+
+```javascript title="Replay attack check (Node.js)"
+const FIVE_MINUTES_MS = 5 * 60 * 1000;
+
+function isTimestampFresh(timestampHeader) {
+  const deliveredAt = parseInt(timestampHeader, 10) * 1000; // convert to ms
+  return Math.abs(Date.now() - deliveredAt) < FIVE_MINUTES_MS;
+}
+
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const signature = req.headers['x-zolt-signature'];
+  const timestamp = req.headers['x-zolt-timestamp'];
+
+  if (!isTimestampFresh(timestamp)) {
+    return res.status(400).send('Request timestamp is too old');
+  }
+
+  if (!verifyWebhookSignature(req.body, signature, process.env.ZOLT_WEBHOOK_SECRET)) {
+    return res.status(401).send('Invalid signature');
+  }
+
+  const event = JSON.parse(req.body);
+  res.sendStatus(200);
+});
+```
+
+<Note>
+  Ensure your server's system clock is synchronized with NTP. Clock drift can cause legitimate deliveries to fail the timestamp check if your server time is significantly out of sync with Zolt's servers.
+</Note>

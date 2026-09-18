@@ -1,0 +1,88 @@
+---
+title: "Manage Your Zolt Subscription and Billing"
+sidebarTitle: "Billing"
+description: "Understand Zolt's pricing plans, upgrade or downgrade your subscription, manage payment methods, and download invoices and receipts."
+---
+
+Zolt offers flexible pricing plans to suit teams of every size, from solo freelancers to large organizations. As your team grows or your needs change, you can upgrade, downgrade, or cancel your subscription at any time from the Billing settings — no need to contact support. This page walks you through everything you need to manage your workspace's subscription and payment details.
+
+## Plans Overview
+
+<CardGroup cols={3}>
+  <Card title="Free" icon="circle">
+    Perfect for individuals and small teams getting started. Includes up to 5 members, 3 active projects, unlimited tasks, and basic integrations. Storage is limited to 1 GB per workspace. No credit card required.
+  </Card>
+  <Card title="Pro" icon="star">
+    Built for growing teams that need more power. Includes unlimited members, unlimited projects, advanced automations, priority support, 50 GB of storage, and access to detailed analytics and reporting dashboards.
+  </Card>
+  <Card title="Business" icon="building">
+    Designed for large organizations with enterprise needs. Includes everything in Pro plus SSO (SAML), advanced audit logs, custom roles and permissions, a dedicated account manager, 250 GB storage, and SLA-backed uptime guarantees.
+  </Card>
+</CardGroup>
+
+For a detailed feature comparison, visit the [Zolt Pricing page](https://zolt.app/pricing).
+
+## Upgrading Your Plan
+
+Only the workspace **Owner** can upgrade a plan. If you're not the Owner, ask them to follow the steps below.
+
+<Steps>
+  <Step title="Open Billing Settings">
+    Go to **Settings → Billing**. You'll see your current plan, next billing date, and a summary of your usage.
+  </Step>
+  <Step title="Click Upgrade">
+    Click the **Upgrade Plan** button. A plan selection screen displays the available plans with feature highlights and pricing.
+  </Step>
+  <Step title="Choose a Plan">
+    Select the plan you want to move to. You can toggle between **monthly** and **annual** billing — annual billing offers a discounted rate equivalent to two months free.
+  </Step>
+  <Step title="Enter Payment Details">
+    Enter your credit or debit card details, or select a saved payment method if you've used one before. Zolt accepts Visa, Mastercard, American Express, and all major debit cards. Payments are processed securely via Stripe.
+  </Step>
+  <Step title="Confirm the Upgrade">
+    Review the order summary, including the charge amount and billing cycle start date, then click **Confirm Upgrade**. Your new plan activates immediately and you'll receive an email receipt.
+  </Step>
+</Steps>
+
+## Managing Payment Methods
+
+To add, update, or remove a payment method, go to **Settings → Billing → Payment Methods**.
+
+- **Add a new card** — click **+ Add Payment Method**, enter your card details, and click **Save**. The new card is added to your account but does not become the default until you set it.
+- **Set a default** — click **Set as Default** next to any saved card. Future subscription renewals and invoices will be charged to the default card.
+- **Remove a card** — click **Remove** next to a card to delete it. You cannot remove your only payment method while on a paid plan; add a replacement first.
+
+<Info>
+  Zolt does not store raw card numbers. All payment data is tokenized and managed by Stripe in accordance with PCI-DSS compliance standards.
+</Info>
+
+## Invoices and Receipts
+
+Every payment generates an invoice that you can download as a PDF for accounting or expense purposes.
+
+To access your invoices:
+
+1. Go to **Settings → Billing → Invoices**
+2. Find the invoice by date or amount
+3. Click **Download PDF** to save it to your device
+
+Invoices include your workspace name, the billing period, the plan name, the amount charged, and the payment method used. If you need a custom billing address or VAT number added to future invoices, click **Update Billing Details** at the top of the Invoices page.
+
+## Canceling Your Subscription
+
+To cancel your Zolt subscription, go to **Settings → Billing → Cancel Subscription**. Follow the prompts to confirm cancellation.
+
+After cancellation:
+
+- Your workspace remains active and fully functional until the end of the current billing period
+- At the end of the billing period, the workspace downgrades automatically to the Free plan
+- All workspace data — projects, tasks, comments, and files — is retained for **30 days** after the downgrade before any data that exceeds Free plan limits is removed
+- You can reactivate your subscription at any time before or after the 30-day window
+
+<Note>
+  Only the workspace **Owner** can manage billing, upgrade or downgrade plans, and cancel the subscription. Admins can view billing information but cannot make changes.
+</Note>
+
+<Warning>
+  Downgrading from Pro or Business to Free will remove access for any members that exceed the Free plan's 5-seat limit. Affected members lose workspace access immediately upon downgrade. Reassign or offboard those members before downgrading to avoid disruption.
+</Warning>

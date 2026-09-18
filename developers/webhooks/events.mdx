@@ -1,0 +1,282 @@
+---
+title: "Zolt Webhook Events Reference"
+sidebarTitle: "Events"
+description: "Complete reference for every webhook event type Zolt can emit, organized by resource category, with full example payloads for each."
+---
+
+Zolt emits a webhook event every time a significant action occurs on a resource in your workspace. This page lists every available event type, grouped by resource, along with an example payload so you know exactly what your endpoint will receive. Subscribe only to the events your integration actually needs — narrowing your subscription reduces noise and keeps your handler lean.
+
+<Note>
+  All event names follow the `resource.action` pattern. The first segment identifies the resource type (`task`, `project`, `member`) and the second segment describes what happened (`created`, `updated`, `deleted`, and so on). This consistent naming convention makes it straightforward to route incoming events with a single `switch` or `match` statement in your handler.
+</Note>
+
+## Task Events
+
+<AccordionGroup>
+  <Accordion title="task.created — A new task was created">
+    Fired immediately after a task is created in any project within your workspace. The `data.task` object contains the full task record at the moment of creation.
+
+    ```json title="task.created payload"
+    {
+      "id": "evt_01H9ABC",
+      "event": "task.created",
+      "created_at": "2024-01-15T10:30:00Z",
+      "data": {
+        "task": {
+          "id": "task_abc123",
+          "title": "Design new landing page",
+          "description": "Redesign the marketing landing page for Q2 launch.",
+          "project_id": "proj_xyz789",
+          "status": "todo",
+          "priority": "high",
+          "assignee_id": "user_def456",
+          "due_date": "2024-02-01",
+          "created_by": "user_ghi789",
+          "created_at": "2024-01-15T10:30:00Z"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="task.updated — One or more task fields changed">
+    Fired when any editable field on a task is modified — such as its title, description, priority, assignee, or due date. The payload includes a `changes` object that shows the previous and new value for every field that was modified, making it easy to react only to the specific changes your integration cares about.
+
+    ```json title="task.updated payload"
+    {
+      "id": "evt_01H9DEF",
+      "event": "task.updated",
+      "created_at": "2024-01-16T14:05:00Z",
+      "data": {
+        "task": {
+          "id": "task_abc123",
+          "title": "Design new landing page",
+          "project_id": "proj_xyz789",
+          "status": "in_progress",
+          "priority": "high",
+          "assignee_id": "user_def456",
+          "due_date": "2024-02-05",
+          "updated_at": "2024-01-16T14:05:00Z"
+        },
+        "changes": {
+          "due_date": {
+            "before": "2024-02-01",
+            "after": "2024-02-05"
+          },
+          "assignee_id": {
+            "before": "user_ghi789",
+            "after": "user_def456"
+          }
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="task.deleted — A task was permanently deleted">
+    Fired when a task is hard-deleted from a project. Because the task no longer exists at delivery time, the payload captures the task's last known state so you can clean up any references to it in your system.
+
+    ```json title="task.deleted payload"
+    {
+      "id": "evt_01H9GHI",
+      "event": "task.deleted",
+      "created_at": "2024-01-17T09:00:00Z",
+      "data": {
+        "task": {
+          "id": "task_abc123",
+          "title": "Design new landing page",
+          "project_id": "proj_xyz789",
+          "deleted_by": "user_ghi789",
+          "deleted_at": "2024-01-17T09:00:00Z"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="task.status_changed — A task moved to a new status">
+    Fired specifically when a task's status column changes (for example, from `todo` to `in_progress`, or from `in_progress` to `done`). While `task.updated` also fires in these cases, `task.status_changed` provides a cleaner subscription point if your integration only cares about workflow progression — such as triggering a CI pipeline when a task moves to `in_review`.
+
+    ```json title="task.status_changed payload"
+    {
+      "id": "evt_01H9JKL",
+      "event": "task.status_changed",
+      "created_at": "2024-01-18T11:45:00Z",
+      "data": {
+        "task": {
+          "id": "task_abc123",
+          "title": "Design new landing page",
+          "project_id": "proj_xyz789",
+          "assignee_id": "user_def456"
+        },
+        "transition": {
+          "from": "todo",
+          "to": "in_progress",
+          "changed_by": "user_def456",
+          "changed_at": "2024-01-18T11:45:00Z"
+        }
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Project Events
+
+<AccordionGroup>
+  <Accordion title="project.created — A new project was created">
+    Fired when a workspace member creates a new project. The payload includes the project's initial configuration, including its name, description, and visibility setting.
+
+    ```json title="project.created payload"
+    {
+      "id": "evt_01H9MNO",
+      "event": "project.created",
+      "created_at": "2024-01-10T08:00:00Z",
+      "data": {
+        "project": {
+          "id": "proj_xyz789",
+          "name": "Q2 Marketing Campaign",
+          "description": "All tasks and assets for the Q2 product launch campaign.",
+          "visibility": "private",
+          "owner_id": "user_ghi789",
+          "created_at": "2024-01-10T08:00:00Z"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="project.updated — Project details were changed">
+    Fired when a project's name, description, visibility, or other settings are edited. Like `task.updated`, the payload includes a `changes` object with before and after values for each modified field.
+
+    ```json title="project.updated payload"
+    {
+      "id": "evt_01H9PQR",
+      "event": "project.updated",
+      "created_at": "2024-01-20T13:30:00Z",
+      "data": {
+        "project": {
+          "id": "proj_xyz789",
+          "name": "Q2 Marketing Campaign",
+          "visibility": "public",
+          "updated_at": "2024-01-20T13:30:00Z"
+        },
+        "changes": {
+          "visibility": {
+            "before": "private",
+            "after": "public"
+          }
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="project.archived — A project was archived">
+    Fired when a project is archived. Archived projects are read-only and hidden from the active project list. Your integration may use this event to lock downstream resources or notify stakeholders.
+
+    ```json title="project.archived payload"
+    {
+      "id": "evt_01H9STU",
+      "event": "project.archived",
+      "created_at": "2024-03-31T17:00:00Z",
+      "data": {
+        "project": {
+          "id": "proj_xyz789",
+          "name": "Q2 Marketing Campaign",
+          "archived_by": "user_ghi789",
+          "archived_at": "2024-03-31T17:00:00Z"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="project.deleted — A project was permanently deleted">
+    Fired when a project is hard-deleted, along with all its tasks and associated data. Use this event to remove references to the project from any external systems that were syncing with it.
+
+    ```json title="project.deleted payload"
+    {
+      "id": "evt_01H9VWX",
+      "event": "project.deleted",
+      "created_at": "2024-04-01T09:15:00Z",
+      "data": {
+        "project": {
+          "id": "proj_xyz789",
+          "name": "Q2 Marketing Campaign",
+          "deleted_by": "user_ghi789",
+          "deleted_at": "2024-04-01T09:15:00Z"
+        }
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Member Events
+
+<AccordionGroup>
+  <Accordion title="member.invited — A user was invited to the workspace">
+    Fired when a workspace admin sends an invitation to a new member. The invitation may still be pending acceptance at the time this event fires — subscribe to `member.joined` if you only need to act once the user has accepted.
+
+    ```json title="member.invited payload"
+    {
+      "id": "evt_01H9YZA",
+      "event": "member.invited",
+      "created_at": "2024-01-22T10:00:00Z",
+      "data": {
+        "invitation": {
+          "id": "inv_qrs012",
+          "email": "jane.doe@example.com",
+          "role": "member",
+          "invited_by": "user_ghi789",
+          "invited_at": "2024-01-22T10:00:00Z",
+          "expires_at": "2024-01-29T10:00:00Z"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="member.joined — A user accepted an invitation and joined">
+    Fired when an invited user completes sign-up and joins the workspace. At this point the member has an active account and can be assigned tasks. The payload includes their new user ID, which you can use to link records in your external system.
+
+    ```json title="member.joined payload"
+    {
+      "id": "evt_01H9BCD",
+      "event": "member.joined",
+      "created_at": "2024-01-23T08:30:00Z",
+      "data": {
+        "member": {
+          "id": "user_new999",
+          "email": "jane.doe@example.com",
+          "name": "Jane Doe",
+          "role": "member",
+          "joined_at": "2024-01-23T08:30:00Z"
+        }
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="member.removed — A member was removed from the workspace">
+    Fired when a member is removed by an admin or leaves the workspace voluntarily. After this event, the member loses access to all workspace resources. Use this event to revoke any delegated permissions your integration may have granted based on their membership.
+
+    ```json title="member.removed payload"
+    {
+      "id": "evt_01H9EFG",
+      "event": "member.removed",
+      "created_at": "2024-02-14T16:00:00Z",
+      "data": {
+        "member": {
+          "id": "user_new999",
+          "email": "jane.doe@example.com",
+          "name": "Jane Doe",
+          "removed_by": "user_ghi789",
+          "removed_at": "2024-02-14T16:00:00Z"
+        }
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,96 @@
+---
+title: "API Rate Limits and How to Handle Them"
+sidebarTitle: "Rate Limits"
+description: "Understand Zolt API rate limits by plan, read the headers returned with every response, and follow best practices to keep your integration within limits."
+---
+
+To keep the Zolt API reliable and fair for every integration, each workspace is subject to a rate limit that caps the number of requests it can make within a rolling one-minute window. If your integration exceeds its limit, the API returns a `429 Too Many Requests` response until the window resets. Understanding how limits work — and designing your integration around them — ensures a smooth experience for your users.
+
+## Default Rate Limits
+
+Rate limits are set at the workspace level and vary by the workspace's current Zolt subscription plan. All limits apply per minute on a rolling basis.
+
+| Plan | Requests per Minute |
+|------|---------------------|
+| Free | 60 |
+| Pro | 300 |
+| Business | 1,000 |
+
+If your integration consistently approaches these limits and upgrading your plan is not sufficient, contact [support@zolt.io](mailto:support@zolt.io) to discuss a custom limit for high-volume use cases.
+
+## Rate Limit Headers
+
+Every API response — whether successful or not — includes three headers that tell you exactly where you stand in the current rate limit window. Always read these headers in your integration rather than counting requests yourself.
+
+```http title="Rate Limit Response Headers"
+X-RateLimit-Limit: 300
+X-RateLimit-Remaining: 245
+X-RateLimit-Reset: 1700000000
+```
+
+| Header | Description |
+|--------|-------------|
+| `X-RateLimit-Limit` | The maximum number of requests your workspace is allowed to make per minute under your current plan. |
+| `X-RateLimit-Remaining` | The number of requests remaining in the current one-minute window. When this reaches `0`, subsequent requests will receive a `429` response. |
+| `X-RateLimit-Reset` | A Unix timestamp (UTC) indicating when the current window expires and your remaining count resets to the full limit. |
+
+## Handling 429 Too Many Requests
+
+When your integration receives a `429` response, it should pause and retry the request after a delay rather than immediately re-attempting. Use an **exponential backoff** strategy — each successive retry waits twice as long as the previous one — with a small amount of random jitter added to prevent multiple instances of your integration from retrying in lockstep.
+
+```javascript title="Exponential Backoff with Retry (JavaScript)"
+async function fetchWithRetry(url, options, maxRetries = 5) {
+  let attempt = 0;
+
+  while (attempt < maxRetries) {
+    const response = await fetch(url, options);
+
+    if (response.status !== 429) {
+      // Request succeeded or failed for a non-rate-limit reason
+      return response;
+    }
+
+    attempt++;
+
+    if (attempt >= maxRetries) {
+      throw new Error(`Rate limit exceeded after ${maxRetries} retries.`);
+    }
+
+    // Exponential backoff: 200ms, 400ms, 800ms, 1600ms, ...
+    const baseDelay = 200;
+    const jitter = Math.random() * 100; // up to 100ms of random jitter
+    const delay = baseDelay * Math.pow(2, attempt - 1) + jitter;
+
+    console.warn(`Rate limited. Retrying in ${Math.round(delay)}ms (attempt ${attempt}/${maxRetries})...`);
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+}
+
+// Example usage
+const response = await fetchWithRetry("https://api.zolt.io/v1/projects", {
+  method: "GET",
+  headers: {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+You can also read the `X-RateLimit-Reset` header to calculate the exact time remaining in the current window and delay your retry until after that timestamp, rather than using a generic backoff interval.
+
+## Best Practices
+
+Following these patterns from the start will help your integration stay well within its rate limit even as usage grows:
+
+- **Cache responses locally** — for data that does not change frequently (such as team member lists or project metadata), store the API response in memory or in a database and serve it from your cache instead of making repeated API calls
+- **Batch requests where possible** — retrieve a full list of resources in a single paginated request rather than fetching each resource individually by ID in a loop
+- **Use webhooks instead of polling** — rather than calling the API on a timer to check for changes, subscribe to Zolt webhook events to receive instant notifications when data changes; this eliminates polling entirely and uses zero rate limit budget when there is no activity
+- **Monitor `X-RateLimit-Remaining` proactively** — log this header in development and set up alerts if it drops close to zero, so you can identify high-traffic code paths before they cause `429` errors in production
+- **Distribute requests over time** — if your integration performs bulk operations (such as creating hundreds of tasks from a CSV import), introduce a small delay between requests to spread the load rather than firing them all at once
+
+<Tip>
+  Webhooks are the most effective way to stay within rate limits for event-driven integrations. Instead of polling `GET /projects` or `GET /tasks` every few seconds to detect changes, configure a webhook subscription and let Zolt push the update to your endpoint the moment it happens. See the [Webhooks](/developers/webhooks) documentation to get started.
+</Tip>

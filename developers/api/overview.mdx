@@ -1,0 +1,153 @@
+---
+title: "Zolt REST API Overview and Getting Started"
+sidebarTitle: "API Overview"
+description: "Learn the Zolt REST API structure, base URL, JSON request and response formats, and make your first authenticated API call in minutes."
+---
+
+The Zolt REST API gives you programmatic access to everything inside your Zolt workspace — projects, tasks, users, teams, and more. All communication happens over HTTPS, every request authenticates with a Bearer token, and every response body is JSON. Whether you're building a custom integration, automating workflows, or syncing Zolt data with an external system, this reference covers everything you need to get up and running.
+
+## Base URL
+
+All API requests target the following base URL. Include the version segment (`v1`) in every path you call.
+
+```text title="Base URL"
+https://api.zolt.io/v1
+```
+
+<Note>
+  The Zolt API is versioned. If a future breaking change requires a new major version, the base URL will change to `https://api.zolt.io/v2`. See the [API Changelog](/developers/api/changelog) for version history and deprecation timelines.
+</Note>
+
+## Request Format
+
+For `POST`, `PUT`, and `PATCH` requests, send a JSON body and include the `Content-Type: application/json` header. Query parameters are used for filtering, sorting, and pagination on `GET` requests. All requests must include a valid `Authorization` header.
+
+```bash title="Example POST request"
+curl -X POST https://api.zolt.io/v1/projects \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Q4 Marketing Campaign", "description": "All tasks for Q4"}'
+```
+
+<Tip>
+  Replace `YOUR_API_KEY` with a real key generated in your Zolt workspace. Head to **Settings → Developer → API Keys** to create one. See the [Authentication guide](/developers/authentication) for full details.
+</Tip>
+
+## Response Format
+
+Every successful API response returns a JSON body. Zolt uses an **envelope pattern** to make response shapes predictable:
+
+- **Single resources** are wrapped in a `data` object.
+- **List responses** return an `items` array alongside a `meta` object containing pagination details.
+
+HTTP status codes follow standard conventions — `200` for successful reads, `201` for successful creation, `204` for successful deletion, and `4xx`/`5xx` for errors.
+
+```json title="Successful single-resource response"
+{
+  "data": {
+    "id": "proj_abc123",
+    "name": "Q4 Marketing Campaign",
+    "description": "All tasks for Q4",
+    "created_at": "2024-01-15T10:00:00Z",
+    "updated_at": "2024-01-15T10:00:00Z"
+  }
+}
+```
+
+### Error Responses
+
+When a request fails, Zolt returns a JSON error body with a machine-readable `code` and a human-readable `message`.
+
+```json title="Error response"
+{
+  "error": {
+    "code": "resource_not_found",
+    "message": "No project with ID proj_abc123 exists in this workspace.",
+    "status": 404
+  }
+}
+```
+
+## Your First API Call
+
+The simplest call you can make is listing your workspace's projects. It requires only a valid API key and returns a paginated list of every project your token has access to.
+
+<CodeGroup>
+
+```bash title="cURL"
+curl -X GET https://api.zolt.io/v1/projects \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```javascript title="JavaScript (fetch)"
+const response = await fetch("https://api.zolt.io/v1/projects", {
+  method: "GET",
+  headers: {
+    Authorization: "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+  },
+});
+
+const { items, meta } = await response.json();
+
+console.log(`Fetched ${items.length} projects (${meta.total} total)`);
+items.forEach((project) => console.log(`- ${project.name} (${project.id})`));
+```
+
+```python title="Python (requests)"
+import requests
+
+headers = {
+    "Authorization": "Bearer YOUR_API_KEY",
+    "Content-Type": "application/json",
+}
+
+response = requests.get("https://api.zolt.io/v1/projects", headers=headers)
+response.raise_for_status()
+
+data = response.json()
+for project in data["items"]:
+    print(f"- {project['name']} ({project['id']})")
+```
+
+</CodeGroup>
+
+A successful response looks like this:
+
+```json title="GET /projects response"
+{
+  "items": [
+    {
+      "id": "proj_abc123",
+      "name": "Q4 Marketing Campaign",
+      "description": "All tasks for Q4",
+      "visibility": "team",
+      "created_at": "2024-01-15T10:00:00Z",
+      "updated_at": "2024-01-15T10:00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 1,
+    "limit": 20,
+    "has_more": false,
+    "next_cursor": null
+  }
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/developers/authentication">
+    Learn how to generate API keys, pass your token, and handle authentication errors.
+  </Card>
+  <Card title="API Resources" icon="database" href="/developers/api/resources">
+    Explore all available endpoints for Projects, Tasks, Users, and Teams.
+  </Card>
+  <Card title="Pagination & Filtering" icon="list" href="/developers/api/pagination">
+    Understand cursor-based pagination and how to filter and sort list responses.
+  </Card>
+  <Card title="API Changelog" icon="clock-rotate-left" href="/developers/api/changelog">
+    Review version history and stay ahead of upcoming deprecations.
+  </Card>
+</CardGroup>

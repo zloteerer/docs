@@ -1,0 +1,118 @@
+---
+title: "Zolt API Changelog and Version History"
+sidebarTitle: "Changelog"
+description: "A complete record of Zolt API changes, new endpoints, deprecation notices, and version history — essential reading for third-party developers."
+---
+
+The Zolt API changelog documents every change made to the public REST API — new endpoints, modified request or response schemas, deprecated fields, and removed functionality. Review this page before upgrading your integration, and reference it whenever you encounter unexpected behavior after a Zolt release.
+
+## Versioning Policy
+
+The Zolt API is currently on **version 1** (`v1`). All `v1` endpoints are served from `https://api.zolt.io/v1`.
+
+When Zolt introduces a breaking change — such as removing a field, changing a field's data type, or altering authentication behavior — we will release a new major version (e.g., `v2`) at `https://api.zolt.io/v2`. The previous version remains fully supported for **12 months** after the new version ships, giving you ample time to migrate.
+
+<Accordion title="What counts as a breaking change?">
+  The following changes are considered breaking and will always trigger a new major API version:
+
+  - Removing or renaming an existing endpoint
+  - Removing or renaming a required or optional field from a request or response body
+  - Changing the data type of an existing field (e.g., `string` → `integer`)
+  - Changing the HTTP method required by an endpoint
+  - Altering authentication or authorization behavior in a way that could reject previously valid requests
+
+  The following changes are **not** considered breaking and may be introduced in minor or patch releases without a new version:
+
+  - Adding new optional request fields
+  - Adding new fields to response bodies
+  - Adding new endpoints
+  - Adding new enum values to existing fields (design your parsers to handle unknown enum values gracefully)
+  - Improving error messages without changing `code` values
+</Accordion>
+
+<Note>
+  Subscribe to the **Zolt Developer Newsletter** to receive advance notice of upcoming breaking changes, new API features, and deprecation timelines directly in your inbox. Sign up at [zolt.io/developers/newsletter](https://zolt.io/developers/newsletter).
+</Note>
+
+---
+
+## January 2025 — v1.3.0
+
+**New features and additions in this release:**
+
+- **`priority` field on tasks** — The `priority` field is now returned on all task objects. Accepted values are `low`, `medium`, `high`, and `urgent`. Existing tasks that were created before this release default to `medium`. You can update priority using `PATCH /tasks/{task_id}`.
+
+- **`filter[priority]` query parameter** — All task list endpoints now support filtering by priority. For example:
+  ```bash title="Filter by priority"
+  GET https://api.zolt.io/v1/projects/proj_abc123/tasks?filter[priority]=urgent
+  ```
+
+- **`GET /tasks/{task_id}/comments`** — A new endpoint for retrieving comments on a task. Returns a paginated list of comment objects, each containing `id`, `author_id`, `body`, and `created_at`. Comment creation and deletion endpoints are planned for a future release.
+  ```bash title="List task comments"
+  curl -X GET https://api.zolt.io/v1/tasks/task_def456/comments \
+    -H "Authorization: Bearer YOUR_API_KEY"
+  ```
+
+---
+
+## November 2024 — v1.2.0
+
+**New features and additions in this release:**
+
+- **Teams API** — A full set of CRUD endpoints for managing teams is now available. See the [Resources reference](/developers/api/resources#teams) for full documentation.
+  - `GET /teams`
+  - `POST /teams`
+  - `GET /teams/{team_id}`
+  - `DELETE /teams/{team_id}`
+
+- **New webhook events for member activity** — Two new webhook event types have been added to support member lifecycle automations:
+  - `member.invited` — fired when a user is invited to join the workspace.
+  - `member.joined` — fired when an invited user accepts and completes their first login.
+
+- **`X-Zolt-Timestamp` header on webhook payloads** — All webhook POST requests now include an `X-Zolt-Timestamp` header containing the Unix timestamp (in seconds) of when the event was generated. Use this value alongside `X-Zolt-Signature` to protect against replay attacks.
+
+---
+
+## September 2024 — v1.1.0
+
+**New features and additions in this release:**
+
+- **Cursor-based pagination on all list endpoints** — All endpoints that return collections now support cursor-based pagination via the `cursor` and `limit` query parameters and the `meta.next_cursor` response field. See the [Pagination guide](/developers/api/pagination) for full details.
+
+**Deprecations in this release:**
+
+- **Offset pagination parameters deprecated** — The `page` and `offset` query parameters that were available on list endpoints in `v1.0.0` are now deprecated and will be **removed in v1.2.0**. Migrate to cursor-based pagination before upgrading. The deprecated parameters continue to function in `v1.1.0` but return a `Deprecation` response header to signal that they will be removed.
+
+<Warning>
+  If your integration used `?page=` or `?offset=` query parameters, those parameters were removed in **v1.2.0** (November 2024). Update your code to use `?cursor=` and `?limit=` instead.
+</Warning>
+
+---
+
+## July 2024 — v1.0.0
+
+**Initial public release of the Zolt REST API.**
+
+This release establishes the foundation of the Zolt API with the following capabilities:
+
+- **Projects endpoints** — Create, read, update, and delete projects in your workspace.
+  - `GET /projects`
+  - `POST /projects`
+  - `GET /projects/{project_id}`
+  - `PATCH /projects/{project_id}`
+  - `DELETE /projects/{project_id}`
+
+- **Tasks endpoints** — Full task management within projects, including assignment and status tracking.
+  - `GET /projects/{project_id}/tasks`
+  - `POST /projects/{project_id}/tasks`
+  - `GET /tasks/{task_id}`
+  - `PATCH /tasks/{task_id}`
+  - `DELETE /tasks/{task_id}`
+
+- **Users endpoints** — Retrieve authenticated user profiles and list workspace members.
+  - `GET /users/me`
+  - `GET /workspace/members`
+
+- **API key authentication** — All requests authenticate via a `Bearer` token in the `Authorization` header. API keys are scoped to a workspace and generated in **Settings → Developer → API Keys**.
+
+- **Webhook support** — Register webhook endpoints to receive real-time event notifications for task and project changes. Initial supported events: `task.created`, `task.updated`, `task.deleted`, `project.created`, `project.updated`, `project.deleted`.

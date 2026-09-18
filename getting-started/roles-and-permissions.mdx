@@ -1,0 +1,59 @@
+---
+title: "Roles and Permissions in Your Zolt Workspace"
+sidebarTitle: "Roles & Permissions"
+description: "Understand Zolt's three workspace roles — Owner, Admin, and Member — and how project-level permissions give you fine-grained access control."
+---
+
+Zolt uses a layered permissions model so you can control exactly who can see, edit, and manage work across your organization. Permissions operate at two levels: the workspace level, which governs global access and settings, and the project level, which governs what members can do within individual projects. Understanding both layers helps you keep your workspace secure and your team focused on the right work.
+
+## Workspace Roles
+
+Every member of a Zolt workspace is assigned one of three roles. These roles determine what a person can do across the entire workspace, regardless of which projects they're assigned to.
+
+| Role | Description | Key Permissions |
+|------|-------------|-----------------|
+| **Owner** | Full control of the workspace | Manage billing, delete the workspace, transfer ownership, access all settings and projects |
+| **Admin** | Manage the organization's structure | Invite and remove members, create and delete projects, manage teams and integrations |
+| **Member** | Day-to-day project work | View and edit tasks on assigned projects, comment, upload files, and update task status |
+
+Only one person holds the Owner role at a time. There is no limit on the number of Admins or Members in a workspace.
+
+## Project-Level Permissions
+
+Within a project, members can be assigned one of three project-level roles. These roles apply on top of — not instead of — the member's workspace role, giving you fine-grained control over individual projects.
+
+**Project Manager**
+Project Managers have full control within a specific project. They can edit project settings, manage sections, invite members to the project, reassign tasks to any member, and archive or delete the project. Workspace Admins and Owners automatically have Project Manager access on all projects.
+
+**Contributor**
+Contributors are the primary collaborators on a project. They can create, edit, and complete tasks; add comments and attachments; move tasks between sections; and update assignees and due dates. This is the default role for members added to a project.
+
+**Viewer**
+Viewers have read-only access to a project. They can see all tasks, comments, and attachments, but cannot make any changes. Use the Viewer role for stakeholders who need visibility without edit access — such as executives reviewing progress or clients monitoring deliverables.
+
+## Changing a Member's Role
+
+You must be a workspace Owner or Admin to change another member's workspace role.
+
+<Steps>
+  <Step title="Open Workspace Settings">
+    Click your workspace name in the top-left corner of Zolt, then select **Settings** from the dropdown menu.
+  </Step>
+  <Step title="Navigate to the Team page">
+    In the Settings sidebar, click **Team**. You'll see a list of all current workspace members along with their assigned roles.
+  </Step>
+  <Step title="Select the member">
+    Find the member whose role you want to change. Click the **⋯** (more options) button on the right side of their row to open the member action menu.
+  </Step>
+  <Step title="Change the role">
+    Select **Change role** from the menu. Choose the new role — **Owner**, **Admin**, or **Member** — from the options that appear. The change takes effect immediately; the member does not need to log out and back in.
+  </Step>
+</Steps>
+
+<Warning>
+  Only the current workspace Owner can transfer ownership to another member. Once you transfer ownership, your own role is automatically downgraded to Admin and you lose access to billing and workspace deletion. To transfer ownership, go to **Settings → Team**, open the target member's action menu, and select **Transfer Ownership**. You will be asked to confirm the action before it takes effect.
+</Warning>
+
+<Tip>
+  Follow the principle of least privilege: assign members only the permissions they need to do their job. Start new workspace members with the **Member** role and grant Admin access only when someone regularly needs to manage other people or project structure. Similarly, default project collaborators to **Contributor** and reserve **Project Manager** for the people who own the project's outcomes.
+</Tip>

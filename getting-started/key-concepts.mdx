@@ -1,0 +1,79 @@
+---
+title: "Key Concepts in Zolt: Projects, Tasks, and Teams"
+sidebarTitle: "Key Concepts"
+description: "Learn the core building blocks of Zolt — workspaces, projects, tasks, sections, teams, and integrations — and how they fit together."
+---
+
+Understanding Zolt's core concepts will help you set up your workspace effectively, collaborate with your team, and get the most out of every feature. Whether you're managing a small project or coordinating work across an entire organization, these building blocks form the foundation of everything you do in Zolt.
+
+## Workspace
+
+A workspace is the top-level container for your entire organization in Zolt. Everything — your projects, members, billing settings, and integrations — lives inside a single workspace. When you sign up for Zolt, you either create a new workspace or receive an invitation to join an existing one.
+
+Think of your workspace as your company's home base. You can customize it with your organization's name and branding, manage who has access, and configure global settings that apply to all projects within it.
+
+## Project
+
+A project is a collection of related tasks organized around a shared goal or deliverable. Projects give your team a focused space to plan, track, and complete a defined body of work — such as launching a product feature, running a marketing campaign, or onboarding a new client.
+
+Each project belongs to exactly one workspace and can be shared with specific teams or individual members. You can view projects as a board, list, or timeline depending on how your team prefers to work.
+
+## Task
+
+A task is the atomic unit of work in Zolt. Every piece of actionable work — no matter how large or small — is captured as a task. Each task includes the following fields:
+
+- **Title** — a short, descriptive name for the work to be done
+- **Description** — rich-text detail, context, or acceptance criteria
+- **Assignee** — the workspace member responsible for completing the task
+- **Due date** — the target completion date
+- **Priority** — Low, Medium, High, or Urgent
+- **Status** — the current state of the task, determined by which section it belongs to
+
+Tasks live inside projects and are organized into sections. You can comment on tasks, attach files, link related tasks, and track a full activity history.
+
+## Section / Column
+
+A section (also called a column in board view) is a grouping of tasks within a project. Sections represent stages of your workflow — for example, **To Do**, **In Progress**, **In Review**, and **Done**. When you move a task from one section to another, its status updates automatically to reflect the new stage.
+
+You can add, rename, reorder, and delete sections to match your team's exact process. Each project starts with a default set of sections that you can customize at any time.
+
+## Team
+
+A team is a named group of workspace members who share access to a specific set of projects. Teams make it easy to manage permissions at scale — instead of adding individuals to every project one by one, you assign a team and all its members gain access instantly.
+
+For example, you might create a **Design** team, an **Engineering** team, and a **Marketing** team, each with access to the projects relevant to their work. Adding a new hire to the right team immediately grants them the correct project access.
+
+## Integration
+
+An integration is a connected third-party app or service that extends Zolt's capabilities. Integrations let you sync data, trigger actions, and automate workflows without leaving your existing tools. Zolt supports native integrations with popular services like Slack, GitHub, and Google Drive, as well as a public REST API and webhooks for custom-built connections.
+
+You manage all integrations from **Settings → Integrations** in your workspace.
+
+<Note>
+  Zolt's data model follows a clear hierarchy that you can keep in mind as you navigate the product:
+
+  **Workspace → Projects → Sections → Tasks**
+
+  Every object in Zolt belongs to a parent in this chain. Understanding this structure makes it easier to set up permissions, organize your work, and build integrations that target the right level of the hierarchy.
+</Note>
+
+---
+
+## What to explore next
+
+<CardGroup cols={2}>
+  <Card
+    title="Roles & Permissions"
+    icon="shield-halved"
+    href="/getting-started/roles-and-permissions"
+  >
+    Learn about workspace roles, project-level permissions, and how to control who can see and do what in Zolt.
+  </Card>
+  <Card
+    title="Integrations Overview"
+    icon="plug"
+    href="/getting-started/integrations-overview"
+  >
+    Discover Zolt's native integrations and learn how to connect your favorite tools using the REST API and webhooks.
+  </Card>
+</CardGroup>

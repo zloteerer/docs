@@ -1,0 +1,60 @@
+---
+title: "Connect Zolt to Your Favorite Tools"
+sidebarTitle: "Integrations Overview"
+description: "Explore Zolt's native integrations with popular apps and learn how to build custom connections using the public REST API and webhooks."
+---
+
+Zolt is designed to fit into the workflows your team already uses, not the other way around. You can connect Zolt to the tools you rely on every day through native integrations that require no code, or extend it with fully custom automations using the public REST API and webhooks. This page gives you an overview of all three paths so you can choose the right approach for your needs.
+
+## Native Integrations
+
+Native integrations are pre-built connections you can enable in a few clicks — no developer required. Each integration is configured from **Settings → Integrations** in your workspace.
+
+- **Slack** — Receive task notifications, due-date reminders, and project updates in your Slack channels. You can also create Zolt tasks directly from Slack messages using the `/zolt` slash command.
+- **Google Drive** — Attach Google Docs, Sheets, and Slides to any task without leaving Zolt. Files open in their native Google editor, and changes sync automatically.
+- **GitHub** — Link pull requests and commits to Zolt tasks. Task status updates automatically when a linked PR is merged, keeping your project board in sync with your codebase.
+- **Zapier** — Connect Zolt to thousands of additional apps through Zapier's no-code automation platform. Trigger Zaps when tasks are created or completed, or create Zolt tasks from events in other tools.
+- **Google Calendar** — Sync task due dates to your Google Calendar so your team's deadlines are always visible alongside meetings and events.
+- **Microsoft Teams** — Get Zolt notifications in Teams channels and use the Zolt tab inside Teams to view and update tasks without switching apps.
+- **Figma** — Embed Figma frames and prototypes directly into task descriptions for seamless design handoff between designers and developers.
+
+<Note>
+  The list above covers the most popular integrations. Zolt adds new native integrations regularly. To see the complete and up-to-date catalog, go to **Settings → Integrations** inside your workspace and browse the full integration library.
+</Note>
+
+## The Zolt API
+
+If you need a connection that no native integration covers, or if you want to build a fully tailored workflow, the Zolt REST API gives you programmatic access to every object in your workspace — projects, tasks, sections, members, and more.
+
+The API uses standard HTTP methods, returns JSON responses, and authenticates via API keys or OAuth 2.0. You can use it to automate task creation from external systems, sync Zolt data with your internal tooling, build reporting dashboards, or create purpose-built integrations for your own products.
+
+To get started with the API, read the [Developer Introduction](/developers/introduction), which covers authentication, base URLs, rate limits, and a quickstart guide with your first API call.
+
+## Webhooks
+
+Webhooks let Zolt push real-time event notifications to your server the moment something changes — no polling required. When a task is created, a status changes, a comment is posted, or a due date is updated, Zolt sends an HTTP POST request to the endpoint URL you configure.
+
+Webhooks are ideal for event-driven automation: triggering a deployment when a task moves to **Done**, posting a summary to an internal tool when a project is completed, or keeping an external database in sync with your Zolt workspace.
+
+To learn how to register a webhook endpoint, verify webhook signatures, and handle event payloads, visit the [Webhooks Overview](/developers/webhooks/overview).
+
+---
+
+## Explore further
+
+<CardGroup cols={2}>
+  <Card
+    title="Connecting Integrations"
+    icon="link"
+    href="/guides/connecting-integrations"
+  >
+    Step-by-step instructions for enabling and configuring native integrations in your Zolt workspace settings.
+  </Card>
+  <Card
+    title="Developer Introduction"
+    icon="code"
+    href="/developers/introduction"
+  >
+    Everything you need to start building with the Zolt REST API — authentication, endpoints, rate limits, and a quickstart example.
+  </Card>
+</CardGroup>
