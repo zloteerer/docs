@@ -22,7 +22,13 @@
               "getting-started/introduction",
               "getting-started/quickstart",
               "getting-started/account-setup",
-              "getting-started/workspace-overview"
+              "getting-started/workspace-overview",
+              {
+                "group": "Migration",
+                "pages": [
+                  "migration/introduction-migration"
+                ]
+              }
             ]
           },
           {
