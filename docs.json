@@ -1,13 +1,16 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "Zolt",
-  "theme": "luma",
+  "theme": "mint",
   "colors": {
-    "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
+    "primary": "#1DB97C",
+    "light": "#1DB97C",
+    "dark": "#1DB97C"
   },
-  "favicon": "/favicon.svg",
+  "favicon": {
+    "light": "/images/favicon.svg",
+    "dark": "/images/favicon.svg"
+  },
   "navigation": {
     "tabs": [
       {
@@ -111,8 +114,36 @@
   "navbar": {
     "primary": {
       "type": "button",
-      "label": "Sign Up",
-      "href": "https://app.zolt.io/signup"
+      "label": "Télécharger Zolt",
+      "href": "https://zolt.to"
     }
+  },
+  "logo": {
+    "light": "/images/Logo.svg",
+    "dark": "/images/Logo.svg",
+    "href": "https://zolt.to"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "fonts": {
+    "heading": {
+      "family": "Sora",
+      "weight": 700
+    },
+    "body": {
+      "family": "Nunito",
+      "weight": 500
+    }
+  },
+  "styling": {
+    "eyebrows": "section",
+    "latex": false
+  },
+  "metadata": {
+    "timestamp": true
+  },
+  "search": {
+    "prompt": "Qu'est ce que tu recherches ?..."
   }
 }
