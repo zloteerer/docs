@@ -1,5 +1,5 @@
 ---
-title: "Paginate and Filter Zolt API List Responses"
+title: "Zolt API Pagination: Cursor, Filtering, and Sorting"
 sidebarTitle: "Pagination"
 description: "Learn how cursor-based pagination, filtering, and sorting work across all Zolt API list endpoints to retrieve exactly the data you need."
 ---
@@ -14,11 +14,13 @@ Use two query parameters to control the size and starting position of each page:
 - **`cursor`** — an opaque, base64-encoded string returned by the previous response. Omit this parameter to fetch the first page.
 
 ```bash title="First page"
-GET https://api.zolt.io/v1/projects?limit=20
+curl -X GET "https://api.zolt.io/v1/projects?limit=20" \
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```bash title="Subsequent page using a cursor"
-GET https://api.zolt.io/v1/projects?limit=20&cursor=eyJpZCI6MTIzfQ
+curl -X GET "https://api.zolt.io/v1/projects?limit=20&cursor=eyJpZCI6MTIzfQ" \
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 <Note>
@@ -87,11 +89,13 @@ Narrow list results by passing filter parameters as `filter[field]=value` query 
 | `filter[visibility]`      | Projects           | Return only projects with the given visibility setting.       |
 
 ```bash title="Filter tasks by status and assignee"
-GET https://api.zolt.io/v1/tasks?filter[status]=in_progress&filter[assignee_id]=user_abc
+curl -X GET "https://api.zolt.io/v1/tasks?filter[status]=in_progress&filter[assignee_id]=user_abc" \
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```bash title="Filter high-priority tasks in a project"
-GET https://api.zolt.io/v1/projects/proj_abc123/tasks?filter[priority]=high&filter[status]=todo
+curl -X GET "https://api.zolt.io/v1/projects/proj_abc123/tasks?filter[priority]=high&filter[status]=todo" \
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 <Tip>
@@ -111,11 +115,13 @@ Control the order of results with the `sort` query parameter. Pass a field name 
 | `sort=title`        | Sort alphabetically by title (A→Z)         |
 
 ```bash title="Tasks sorted by due date, most urgent first"
-GET https://api.zolt.io/v1/projects/proj_abc123/tasks?sort=due_date
+curl -X GET "https://api.zolt.io/v1/projects/proj_abc123/tasks?sort=due_date" \
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 ```bash title="Projects sorted by most recently updated"
-GET https://api.zolt.io/v1/projects?sort=-updated_at
+curl -X GET "https://api.zolt.io/v1/projects?sort=-updated_at" \
+  -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
 <Info>

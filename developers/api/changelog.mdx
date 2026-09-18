@@ -1,5 +1,5 @@
 ---
-title: "Zolt API Changelog and Version History"
+title: "Zolt API Changelog: Version History and Deprecations"
 sidebarTitle: "Changelog"
 description: "A complete record of Zolt API changes, new endpoints, deprecation notices, and version history — essential reading for third-party developers."
 ---
@@ -44,7 +44,8 @@ When Zolt introduces a breaking change — such as removing a field, changing a 
 
 - **`filter[priority]` query parameter** — All task list endpoints now support filtering by priority. For example:
   ```bash title="Filter by priority"
-  GET https://api.zolt.io/v1/projects/proj_abc123/tasks?filter[priority]=urgent
+  curl -X GET "https://api.zolt.io/v1/projects/proj_abc123/tasks?filter[priority]=urgent" \
+    -H "Authorization: Bearer YOUR_API_KEY"
   ```
 
 - **`GET /tasks/{task_id}/comments`** — A new endpoint for retrieving comments on a task. Returns a paginated list of comment objects, each containing `id`, `author_id`, `body`, and `created_at`. Comment creation and deletion endpoints are planned for a future release.

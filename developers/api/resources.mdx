@@ -1,5 +1,5 @@
 ---
-title: "Zolt API Resources: Projects, Tasks, Users, Teams"
+title: "Zolt API Resources: Projects, Tasks, Users and Teams"
 sidebarTitle: "Resources"
 description: "Complete reference for the core Zolt API resources — projects, tasks, users, and teams — including parameters, curl examples, and response shapes."
 ---
@@ -102,6 +102,19 @@ curl -X PATCH https://api.zolt.io/v1/projects/proj_abc123 \
   -d '{"name": "Q4 Marketing Campaign (Final)", "visibility": "public"}'
 ```
 
+```json title="Response"
+{
+  "data": {
+    "id": "proj_abc123",
+    "name": "Q4 Marketing Campaign (Final)",
+    "description": "All tasks for Q4",
+    "visibility": "public",
+    "created_at": "2024-01-15T10:00:00Z",
+    "updated_at": "2024-01-22T14:30:00Z"
+  }
+}
+```
+
 ### `DELETE /projects/{project_id}` — Delete a Project
 
 <Warning>
@@ -128,6 +141,31 @@ Returns a paginated list of all tasks in a given project. Supports filtering by 
 ```bash title="List tasks in a project"
 curl -X GET https://api.zolt.io/v1/projects/proj_abc123/tasks \
   -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json title="Response"
+{
+  "items": [
+    {
+      "id": "task_def456",
+      "project_id": "proj_abc123",
+      "title": "Write Q4 blog post",
+      "description": "Draft and publish the Q4 campaign recap post.",
+      "assignee_id": "user_xyz789",
+      "due_date": "2025-03-31T17:00:00Z",
+      "priority": "high",
+      "status": "todo",
+      "created_at": "2025-01-20T09:00:00Z",
+      "updated_at": "2025-01-20T09:00:00Z"
+    }
+  ],
+  "meta": {
+    "total": 1,
+    "limit": 20,
+    "has_more": false,
+    "next_cursor": null
+  }
+}
 ```
 
 ### `POST /projects/{project_id}/tasks` — Create a Task
@@ -207,6 +245,23 @@ curl -X PATCH https://api.zolt.io/v1/tasks/task_def456 \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"status": "in_progress", "priority": "urgent"}'
+```
+
+```json title="Response"
+{
+  "data": {
+    "id": "task_def456",
+    "project_id": "proj_abc123",
+    "title": "Write Q4 blog post",
+    "description": "Draft and publish the Q4 campaign recap post.",
+    "assignee_id": "user_xyz789",
+    "due_date": "2025-03-31T17:00:00Z",
+    "priority": "urgent",
+    "status": "in_progress",
+    "created_at": "2025-01-20T09:00:00Z",
+    "updated_at": "2025-01-21T11:15:00Z"
+  }
+}
 ```
 
 ### `DELETE /tasks/{task_id}` — Delete a Task
@@ -293,6 +348,26 @@ Returns a paginated list of all teams in the workspace.
 ```bash title="List teams"
 curl -X GET https://api.zolt.io/v1/teams \
   -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+```json title="Response"
+{
+  "items": [
+    {
+      "id": "team_ghi789",
+      "name": "Marketing",
+      "member_count": 2,
+      "created_at": "2025-01-20T09:30:00Z",
+      "updated_at": "2025-01-20T09:30:00Z"
+    }
+  ],
+  "meta": {
+    "total": 1,
+    "limit": 20,
+    "has_more": false,
+    "next_cursor": null
+  }
+}
 ```
 
 ### `POST /teams` — Create a Team
