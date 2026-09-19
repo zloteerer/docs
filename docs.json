@@ -12,105 +12,217 @@
     "dark": "/images/favicon.svg"
   },
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "Getting Started",
-        "groups": [
+        "language": "fr",
+        "default": true,
+        "tabs": [
           {
-            "group": "Onboarding",
-            "pages": [
-              "getting-started/introduction",
-              "getting-started/quickstart",
-              "getting-started/account-setup",
-              "getting-started/workspace-overview",
+            "tab": "Support",
+            "groups": [
               {
-                "group": "Migration",
+                "group": "Centre d'aide",
                 "pages": [
-                  "getting-started/migration/introduction"
+                  "support/faq",
+                  "support/troubleshooting",
+                  "support/contact"
                 ]
               }
             ]
           },
           {
-            "group": "Core Concepts",
-            "pages": [
-              "getting-started/key-concepts",
-              "getting-started/roles-and-permissions",
-              "getting-started/integrations-overview"
+            "tab": "Documentation développeur",
+            "groups": [
+              {
+                "group": "Développeur Overview",
+                "pages": [
+                  "developers/introduction",
+                  "developers/authentication",
+                  "developers/rate-limits",
+                  "developers/errors"
+                ]
+              },
+              {
+                "group": "Webhooks",
+                "pages": [
+                  "developers/webhooks/overview",
+                  "developers/webhooks/events",
+                  "developers/webhooks/security"
+                ]
+              },
+              {
+                "group": "Référence API",
+                "pages": [
+                  "developers/api/overview",
+                  "developers/api/resources",
+                  "developers/api/pagination",
+                  "developers/api/changelog"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Guides produit",
+            "groups": [
+              {
+                "group": "Utilisation de l'application",
+                "pages": [
+                  "guides/dashboard",
+                  "guides/managing-projects",
+                  "guides/team-collaboration",
+                  "guides/notifications"
+                ]
+              },
+              {
+                "group": "Intégrations",
+                "pages": [
+                  "guides/connecting-integrations",
+                  "guides/automation"
+                ]
+              },
+              {
+                "group": "Paramètres de compte",
+                "pages": [
+                  "guides/profile-settings",
+                  "guides/billing",
+                  "guides/security"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Commencez avec Zolt",
+            "groups": [
+              {
+                "group": "Onboarding",
+                "pages": [
+                  "getting-started/introduction",
+                  "getting-started/quickstart",
+                  "getting-started/account-setup",
+                  "getting-started/workspace-overview",
+                  {
+                    "group": "Migration",
+                    "pages": [
+                      "getting-started/migration/introduction"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Concepts clés",
+                "pages": [
+                  "getting-started/key-concepts",
+                  "getting-started/roles-and-permissions",
+                  "getting-started/integrations-overview"
+                ]
+              }
             ]
           }
         ]
       },
       {
-        "tab": "Product Guides",
-        "groups": [
+        "language": "en",
+        "tabs": [
           {
-            "group": "Using the App",
-            "pages": [
-              "guides/dashboard",
-              "guides/managing-projects",
-              "guides/team-collaboration",
-              "guides/notifications"
+            "tab": "Support",
+            "groups": [
+              {
+                "group": "Help Center",
+                "pages": [
+                  "support/faq",
+                  "support/troubleshooting",
+                  "support/contact"
+                ]
+              }
             ]
           },
           {
-            "group": "Integrations",
-            "pages": [
-              "guides/connecting-integrations",
-              "guides/automation",
-              "guides/data-export"
+            "tab": "Developer Docs",
+            "groups": [
+              {
+                "group": "Developer Overview",
+                "pages": [
+                  "developers/introduction",
+                  "developers/authentication",
+                  "developers/rate-limits",
+                  "developers/errors"
+                ]
+              },
+              {
+                "group": "Webhooks",
+                "pages": [
+                  "developers/webhooks/overview",
+                  "developers/webhooks/events",
+                  "developers/webhooks/security"
+                ]
+              },
+              {
+                "group": "API Reference",
+                "pages": [
+                  "developers/api/overview",
+                  "developers/api/resources",
+                  "developers/api/pagination",
+                  "developers/api/changelog"
+                ]
+              }
             ]
           },
           {
-            "group": "Account & Settings",
-            "pages": [
-              "guides/profile-settings",
-              "guides/billing",
-              "guides/security"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Developer Docs",
-        "groups": [
-          {
-            "group": "Developer Overview",
-            "pages": [
-              "developers/introduction",
-              "developers/authentication",
-              "developers/rate-limits",
-              "developers/errors"
+            "tab": "Product Guides",
+            "groups": [
+              {
+                "group": "Using the App",
+                "pages": [
+                  "guides/dashboard",
+                  "guides/managing-projects",
+                  "guides/team-collaboration",
+                  "guides/notifications"
+                ]
+              },
+              {
+                "group": "Integrations",
+                "pages": [
+                  "guides/connecting-integrations",
+                  "guides/automation",
+                  "guides/data-export"
+                ]
+              },
+              {
+                "group": "Account & Settings",
+                "pages": [
+                  "guides/profile-settings",
+                  "guides/billing",
+                  "guides/security"
+                ]
+              }
             ]
           },
           {
-            "group": "Webhooks",
-            "pages": [
-              "developers/webhooks/overview",
-              "developers/webhooks/events",
-              "developers/webhooks/security"
-            ]
-          },
-          {
-            "group": "API Reference",
-            "pages": [
-              "developers/api/overview",
-              "developers/api/resources",
-              "developers/api/pagination",
-              "developers/api/changelog"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Support",
-        "groups": [
-          {
-            "group": "Help Center",
-            "pages": [
-              "support/faq",
-              "support/troubleshooting",
-              "support/contact"
+            "tab": "Getting Started",
+            "groups": [
+              {
+                "group": "Onboarding",
+                "pages": [
+                  "getting-started/introduction",
+                  "getting-started/quickstart",
+                  "getting-started/account-setup",
+                  "getting-started/workspace-overview",
+                  {
+                    "group": "Migration",
+                    "pages": [
+                      "getting-started/migration/introduction"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Core Concepts",
+                "pages": [
+                  "getting-started/key-concepts",
+                  "getting-started/roles-and-permissions",
+                  "getting-started/integrations-overview"
+                ]
+              }
             ]
           }
         ]
